@@ -2,6 +2,40 @@
 import { agregarAlCarrito, actualizarContadorCarrito } from "./carrito.js";
 import { formatearPrecio, obtenerImagenProducto } from "./utils.js";
 
+// En productos.js
+const imagenesCategorias = {
+  bebidas:
+    "https://i.pinimg.com/736x/c7/cb/5a/c7cb5adddce6695a80e78f91684b0308.jpg",
+  lácteos:
+    "https://i.pinimg.com/1200x/9f/31/b7/9f31b75bf86f5618911af6f0345aaf51.jpg",
+  carnes:
+    "https://i.pinimg.com/1200x/dc/ce/23/dcce23c671ecf89badf52eb8ab63c4ea.jpg",
+  frutas:
+    "https://i.pinimg.com/1200x/fc/e0/76/fce0766f7dc45b70cb33aaea88d81d31.jpg",
+  verduras:
+    "https://i.pinimg.com/736x/f3/c2/11/f3c211781e529073e355481af50c5943.jpg",
+  limpieza:
+    "https://i.pinimg.com/1200x/92/9c/b1/929cb17191218e9ba2288f4eaa277dc9.jpg",
+  higiene:
+    "https://i.pinimg.com/1200x/9f/18/ec/9f18ec9bcaae0da7bc7cb67b57ac8261.jpg",
+  panadería:
+    "https://i.pinimg.com/736x/27/b4/59/27b459487fd18fcc84f09c80f996b859.jpg",
+  congelados:
+    "https://i.pinimg.com/1200x/64/fd/d2/64fdd2e339d061bc29a8d8ac83243717.jpg",
+  enlatados:
+    "https://i.pinimg.com/736x/27/18/77/271877f94746dc1ef2961cf4096774a6.jpg",
+  conservas:
+    "https://i.pinimg.com/736x/27/18/77/271877f94746dc1ef2961cf4096774a6.jpg",
+  dulces:
+    "https://i.pinimg.com/736x/2c/49/16/2c4916c9142404490fc8c5d33dcf67c6.jpg",
+  abarrotes:
+    "https://i.pinimg.com/736x/d8/39/6b/d8396b498a087c551af6337affbc591b.jpg",
+  comida:
+    "https://i.pinimg.com/736x/b6/d3/ed/b6d3ed14e86fa601c03ec89e054d8811.jpg",
+  todos:
+    "https://i.pinimg.com/736x/28/4a/3f/284a3f14cc71930b37e901670c3a7812.jpg",
+};
+
 // Cache de productos para evitar múltiples llamadas a la API
 let cacheProductos = null;
 let cacheCategorias = null;
@@ -201,23 +235,30 @@ function generarItemsCarrusel(categorias) {
   return `
     <div class="cursor-pointer inline-block text-center p-3 bg-white dark:bg-gray-700 rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2"
          data-categoria="todos">
-      <div class="w-12 h-12 mb-2 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center
+      <div class="w-16 h-16 mb-2 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden
                   group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
-        <i class="fas fa-boxes text-blue-600 dark:text-blue-300"></i>
+        <img src="https://ejemplo.com/ruta/todos.jpg" alt="Todos" class="w-full h-full object-cover">
       </div>
       <p class="font-medium text-xs text-gray-800 dark:text-white">Todos</p>
     </div>
     
     ${categorias
       .map((categoria) => {
-        const icono = obtenerIconoCategoria(categoria);
-        const color = obtenerColorCategoria(categoria);
+        const imagen =
+          imagenesCategorias[categoria.toLowerCase()] ||
+          "https://via.placeholder.com/64";
 
         return `
         <div class="cursor-pointer inline-block text-center p-3 bg-white dark:bg-gray-700 rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2"
              data-categoria="${categoria}">
-          <div class="w-12 h-12 mb-2 rounded-full ${color.bg} ${color.hoverBg} flex items-center justify-center transition-colors">
-            <i class="fas fa-${icono} ${color.text}"></i>
+          <div class="w-16 h-16 mb-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
+            <img src="${imagen}" alt="${categoria}" 
+                 class="w-full h-full object-cover hover:scale-105 transition-transform"
+                 loading="lazy"
+                 onerror="this.onerror=null;this.src='https://via.placeholder.com/64?text=${categoria.substring(
+                   0,
+                   3
+                 )}'">
           </div>
           <p class="font-medium text-xs text-gray-800 dark:text-white">${categoria}</p>
         </div>
