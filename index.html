@@ -15,7 +15,7 @@
     <!-- Navbar -->
     <nav
       id="navbar"
-      class="bg-[#2b8606] dark:bg-[#08502f] pl-15 pr-11 fixed shadow-md w-full z-10"
+      class="bg-[#2b8606] dark:bg-[#08502f] px-2 md:pl-15 md:pr-11 fixed shadow-md w-full z-10"
     >
       <div class="py-2 flex justify-between items-center">
         <a href="#" class="text-xl font-bold"
@@ -224,149 +224,76 @@
     </div>
 
     <!-- Modal del carrito -->
-    <div id="cart-modal" class="hidden fixed inset-0 z-30">
+    <div id="cart-modal" class="hidden absolute right-4 top-12 z-40 mt-2">
       <div
-        class="absolute right-4 top-16 w-full max-w-md bg-white dark:bg-gray-800 rounded-lg shadow-xl overflow-y-auto max-h-[calc(100vh-6rem)] border border-gray-200 dark:border-gray-700"
+        class="w-72 sm:w-80 bg-white dark:bg-gray-800 rounded-lg shadow-xl border border-gray-200 dark:border-gray-700 flex flex-col"
+        style="max-height: 60vh"
       >
-        <div class="p-4">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-lg font-bold text-gray-800 dark:text-white">
-              Carrito de compras
+        <!-- Encabezado compacto -->
+        <div
+          class="p-2 border-b border-gray-200 dark:border-gray-700 flex-shrink-0"
+        >
+          <div class="flex justify-between items-center">
+            <h3 class="text-sm font-medium text-gray-800 dark:text-white">
+              Tu Carrito
             </h3>
             <button
               id="close-cart-modal"
-              class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
+              class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300 p-1"
             >
-              <i class="fas fa-times"></i>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  fill-rule="evenodd"
+                  d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                  clip-rule="evenodd"
+                />
+              </svg>
             </button>
           </div>
+        </div>
 
-          <div
-            id="cart-items"
-            class="divide-y divide-gray-200 dark:divide-gray-700"
+        <!-- Área de productos con scroll -->
+        <div
+          id="cart-items"
+          class="overflow-y-auto flex-grow divide-y divide-gray-200 dark:divide-gray-700 px-2"
+        >
+          <!-- Los productos del carrito se agregarán aquí dinámicamente -->
+          <p class="py-3 text-center text-gray-500 dark:text-gray-400 text-xs">
+            Tu carrito está vacío
+          </p>
+        </div>
+
+        <!-- Sección fija de total y pago -->
+        <div
+          class="border-t border-gray-200 dark:border-gray-700 p-2 bg-white dark:bg-gray-800 flex-shrink-0"
+        >
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-medium text-gray-700 dark:text-gray-300"
+              >Total:</span
+            >
+            <span
+              id="cart-total"
+              class="text-sm font-semibold text-gray-800 dark:text-white"
+              >S/ 0.00</span
+            >
+          </div>
+
+          <button
+            id="checkout-btn"
+            class="w-full bg-green-600 hover:bg-green-700 text-white py-1.5 px-2 rounded text-xs"
           >
-            <!-- Los productos del carrito se agregarán aquí dinámicamente -->
-            <p class="py-4 text-center text-gray-500 dark:text-gray-400">
-              Tu carrito está vacío
-            </p>
-          </div>
-
-          <div class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
-            <div class="flex justify-between items-center mb-4">
-              <span class="font-medium text-gray-700 dark:text-gray-300"
-                >Total:</span
-              >
-              <span
-                id="cart-total"
-                class="font-bold text-lg text-gray-800 dark:text-white"
-                >S/ 0.00</span
-              >
-            </div>
-
-            <button
-              id="checkout-btn"
-              class="w-full bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-md transition duration-300"
-            >
-              Pagar
-            </button>
-          </div>
+            Proceder al Pago
+          </button>
         </div>
       </div>
     </div>
 
-    <!-- Modal de pago 1 -->
-    <!-- <div
-      id="payment-modal"
-      class="hidden fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center p-4"
-    >
-      <div
-        class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full"
-      >
-        <div class="p-6">
-          <div class="flex justify-between items-center mb-4">
-            <h3 class="text-xl font-bold text-gray-800 dark:text-white">
-              Método de pago
-            </h3>
-            <button
-              id="close-payment-modal"
-              class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300"
-            >
-              <i class="fas fa-times"></i>
-            </button>
-          </div>
-
-          <form class="space-y-4">
-            <div>
-              <label
-                for="card-number"
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >Número de tarjeta</label
-              >
-              <input
-                type="text"
-                id="card-number"
-                placeholder="1234 5678 9012 3456"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <label
-                  for="card-expiry"
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >Fecha de expiración</label
-                >
-                <input
-                  type="text"
-                  id="card-expiry"
-                  placeholder="MM/AA"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              <div>
-                <label
-                  for="card-cvc"
-                  class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                  >CVC</label
-                >
-                <input
-                  type="text"
-                  id="card-cvc"
-                  placeholder="123"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label
-                for="card-name"
-                class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1"
-                >Nombre en la tarjeta</label
-              >
-              <input
-                type="text"
-                id="card-name"
-                placeholder="Juan Pérez"
-                class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
-              />
-            </div>
-
-            <button
-              type="button"
-              class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300"
-            >
-              Confirmar pago
-            </button>
-          </form>
-        </div>
-      </div>
-    </div> -->
-
-    <!-- Modal de pago 2 -->
-    <!-- From Uiverse.io by zanina-yassine -->
+    <!-- Modal de pago -->
     <div
       id="payment-modal"
       class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4"
@@ -507,7 +434,7 @@
         </div>
         <div class="separator">
           <hr class="line" />
-          <p>or pay using credit card</p>
+          <p>O paga usando tu tarjeta de credito</p>
           <hr class="line" />
         </div>
         <div class="credit-card-info--form">
@@ -583,11 +510,11 @@
     <main class="bg-[#3a9609] dark:bg-[#1d6d34]">
       <!-- Hero Section -->
       <section
-        class="bg-[#409a12] dark:bg-blue-800 text-white py-12 md:py-20 bg-cover bg-center relative"
+        class="bg-[#409a12] dark:bg-blue-800 text-white py-8 md:py-20 bg-cover bg-center relative"
         style="background-image: url('img/hero-image.png')"
       >
         <div
-          class="container md:px-15 md:py-10 flex flex-col md:flex-row items-center"
+          class="container px-3 md:px-15 md:py-10 flex flex-col md:flex-row items-center"
         >
           <div class="md:w-1/2 mb-8 md:mb-0">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">
@@ -616,7 +543,7 @@
       </section>
 
       <!-- Carrusel de categorías -->
-      <section class="py-3 overflow-hidden absolute top-100">
+      <section class="py-3 overflow-hidden absolute top-84 md:top-100">
         <div class="flex flex-col">
           <!--           <h2 class="text-2xl font-bold mb-6 px-15 text-white dark:text-white">
             Categorías
@@ -634,12 +561,12 @@
 
       <!-- Productos -->
       <section class="py-8 pt-29">
-        <div class="px-15">
+        <div class="px-5 md:px-15">
           <h2 class="text-2xl font-bold mb-6 text-white dark:text-white">
             Nuestros productos
           </h2>
           <div
-            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6"
+            class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-6"
             id="productos-container"
           >
             <!-- Los productos se cargarán aquí dinámicamente -->
@@ -649,30 +576,92 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-[#1d6d34] text-white py-8">
+    <footer class="bg-gray-800 dark:bg-gray-900 text-white py-4">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-center">
           <div class="mb-6 md:mb-0">
-            <h3 class="text-xl font-bold mb-2">Minimarket Funval</h3>
-            <p class="text-gray-400">Los mejores productos para tu hogar</p>
+            <div class="flex items-center justify-center md:justify-start">
+              <img
+                src="./img/Qorimarket.png"
+                alt="Logo Minimarket"
+                class="h-10 md:h-15"
+              />
+            </div>
+            <p class="mt-2 ml-3 text-gray-400">
+              Productos de primera necesidad para tu hogar
+            </p>
           </div>
-          <div class="flex space-x-6">
-            <a href="#" class="hover:text-blue-400 transition duration-300"
-              ><i class="fab fa-facebook-f"></i
-            ></a>
-            <a href="#" class="hover:text-blue-400 transition duration-300"
-              ><i class="fab fa-twitter"></i
-            ></a>
-            <a href="#" class="hover:text-blue-400 transition duration-300"
-              ><i class="fab fa-instagram"></i
-            ></a>
+
+          <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Enlaces</h3>
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-gray-400 hover:text-white transition"
+                    >Inicio</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#productos"
+                    class="text-gray-400 hover:text-white transition"
+                    >Productos</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#ofertas"
+                    class="text-gray-400 hover:text-white transition"
+                    >Ofertas</a
+                  >
+                </li>
+                <li>
+                  <a
+                    href="#contacto"
+                    class="text-gray-400 hover:text-white transition"
+                    >Contacto</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Legal</h3>
+              <ul class="space-y-2">
+                <li>
+                  <a href="#" class="text-gray-400 hover:text-white transition"
+                    >Términos</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-gray-400 hover:text-white transition"
+                    >Privacidad</a
+                  >
+                </li>
+                <li>
+                  <a href="#" class="text-gray-400 hover:text-white transition"
+                    >Cookies</a
+                  >
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+              <ul class="space-y-2">
+                <li class="text-gray-400">info@Qorimarket.com</li>
+                <li class="text-gray-400">+51 902539586</li>
+                <li class="text-gray-400">Calle Principal 123, Trujilo-Pe</li>
+              </ul>
+            </div>
           </div>
         </div>
-        <div
+
+        <!--         <div
           class="border-t border-gray-700 mt-8 pt-8 text-center text-gray-400"
         >
           <p>&copy; 2025 Minimarket Funval. Todos los derechos reservados.</p>
-        </div>
+        </div> -->
       </div>
     </footer>
 
