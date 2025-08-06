@@ -685,6 +685,9 @@
   .border-transparent {
     border-color: transparent;
   }
+  .bg-\[\#eaa300\] {
+    background-color: #eaa300;
+  }
   .bg-black {
     background-color: var(--color-black);
   }
@@ -1086,6 +1089,13 @@
         --tw-scale-y: 105%;
         --tw-scale-z: 105%;
         scale: var(--tw-scale-x) var(--tw-scale-y);
+      }
+    }
+  }
+  .hover\:bg-\[\#f7b722\] {
+    &:hover {
+      @media (hover: hover) {
+        background-color: #f7b722;
       }
     }
   }
