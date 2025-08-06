@@ -15,24 +15,21 @@
     <!-- Navbar -->
     <nav
       id="navbar"
-      class="bg-white dark:bg-gray-800 shadow-md fixed w-full z-10"
+      class="bg-[#2b8606] dark:bg-[#08502f] pl-15 pr-11 fixed shadow-md w-full z-10"
     >
-      <div
-        class="container mx-auto px-4 py-2 flex justify-between items-center"
-      >
-        <a href="#" class="text-xl font-bold text-gray-800 dark:text-white"
-          >Minimarket Funval</a
-        >
-
-        <div class="flex items-center space-x-4">
+      <div class="py-2 flex justify-between items-center">
+        <a href="#" class="text-xl font-bold"
+          ><img src="./img/Qorimarket.png" alt="" class="w-37"
+        /></a>
+        <div class="flex items-center">
           <!-- Botón modo día/noche -->
           <button
             id="theme-toggle"
-            class="p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            class="p-2 rounded-full hover:bg-[#6bc02a] dark:hover:bg-gray-700 cursor-pointer"
           >
             <svg
               id="theme-icon"
-              class="w-5 h-5 text-gray-800 dark:text-yellow-300"
+              class="w-5 h-5 text-[#f3e244] dark:text-yellow-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -51,12 +48,10 @@
           <div class="relative">
             <button
               id="login-btn"
-              class="flex items-center space-x-1 px-3 py-2 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-700"
+              class="flex items-center space-x-1 gap-2 px-3 py-2 rounded-lg hover:bg-[#6bc02a] dark:hover:bg-gray-700 cursor-pointer"
             >
-              <span class="text-gray-700 dark:text-gray-300"
-                >Iniciar sesión</span
-              >
-              <i class="fas fa-user text-gray-600 dark:text-gray-400"></i>
+              <span class="text-white dark:text-gray-300">Iniciar sesión</span>
+              <i class="fas fa-user text-white dark:text-gray-400"></i>
             </button>
 
             <!-- Dropdown de login -->
@@ -121,11 +116,9 @@
           <!-- Carrito de compras -->
           <button
             id="cart-btn"
-            class="relative p-2 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700"
+            class="relative p-2 rounded-full hover:bg-[#6bc02a] dark:hover:bg-gray-700 cursor-pointer"
           >
-            <i
-              class="fas fa-shopping-cart text-gray-700 dark:text-gray-300"
-            ></i>
+            <i class="fas fa-shopping-cart text-white dark:text-gray-300"></i>
             <span
               id="cart-count"
               class="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center"
@@ -372,19 +365,33 @@
       </div>
     </div>
 
+    <!-- Nav Solo para ocupar espacio -->
+    <nav
+      id="navbar"
+      class="bg-[#2b8606] dark:bg-gray-800 shadow-md w-full z-10"
+    >
+      <div
+        class="container mx-auto px-4 py-2 flex justify-between items-center"
+      >
+        <a href="#" class="text-xl font-bold"
+          ><img src="./img/Qorimarket.png" alt="" class="w-35"
+        /></a>
+      </div>
+    </nav>
+
     <!-- Contenido principal -->
-    <main class="pt-14">
+    <main class="bg-[#3a9609] dark:bg-[#1d6d34]">
       <!-- Hero Section -->
       <section
-        class="bg-blue-600 dark:bg-blue-800 text-white py-12 md:py-20 bg-cover bg-center z-90"
-        style="background-image: url('img/hero-image.jpg')"
+        class="bg-[#409a12] dark:bg-blue-800 text-white py-12 md:py-20 bg-cover bg-center relative"
+        style="background-image: url('img/hero-image.png')"
       >
         <div
-          class="container mx-auto px-4 flex flex-col md:flex-row items-center"
+          class="container md:px-15 md:py-10 flex flex-col md:flex-row items-center"
         >
           <div class="md:w-1/2 mb-8 md:mb-0">
             <h1 class="text-4xl md:text-5xl font-bold mb-4">
-              Bienvenido a Minimarket Funval
+              Bienvenido a Qorimarket
             </h1>
             <p class="text-xl mb-6">
               Los mejores productos al mejor precio, directamente a tu hogar.
@@ -395,22 +402,25 @@
               Explorar productos
             </button>
           </div>
-          <!--           <div class="md:w-1/2">
+        </div>
+        <!--           <div class="md:w-1/2">
             <img
               src="img/hero-image.jpg"
               alt="Minimarket Funval"
               class="rounded-lg shadow-xl w-full h-auto max-h-96 object-cover"
             />
           </div> -->
-        </div>
+        <div
+          class="absolute bottom-0 left-0 w-full button-0 h-16 bg-gradient-to-t from-[#3a9609]/100 to-transparent dark:from-gray-800/100"
+        ></div>
       </section>
 
       <!-- Carrusel de categorías -->
-      <section class="py-3 overflow-hidden">
-        <div class="container mx-auto">
-          <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+      <section class="py-3 overflow-hidden absolute top-100">
+        <div class="flex flex-col">
+          <!--           <h2 class="text-2xl font-bold mb-6 px-15 text-white dark:text-white">
             Categorías
-          </h2>
+          </h2> -->
           <div class="relative">
             <div
               id="categorias-filtros"
@@ -423,9 +433,9 @@
       </section>
 
       <!-- Productos -->
-      <section class="py-8">
-        <div class="container mx-auto">
-          <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white">
+      <section class="py-8 pt-29">
+        <div class="px-15">
+          <h2 class="text-2xl font-bold mb-6 text-white dark:text-white">
             Nuestros productos
           </h2>
           <div
@@ -439,7 +449,7 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-8">
+    <footer class="bg-[#1d6d34] text-white py-8">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-center">
           <div class="mb-6 md:mb-0">

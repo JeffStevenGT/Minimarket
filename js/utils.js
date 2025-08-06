@@ -138,6 +138,11 @@ export function obtenerImagenProducto(idProducto) {
       imagen:
         "https://images.rappi.pe/products/1669323880748_1669323878554_1669323881778.png?d=900x750&e=webp&q=30",
     }, // Saladitas
+    {
+      id_producto: 23,
+      imagen:
+        "https://www.agropesa.com.ec/wp-content/uploads/2020/02/Agropesa-07-Mix-Parrillero.png",
+    }, // Chorizo Parrillero
   ];
 
   const producto = productosConImagen.find((p) => p.id_producto === idProducto);
