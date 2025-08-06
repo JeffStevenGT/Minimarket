@@ -86,61 +86,66 @@ function mostrarProductos(productos) {
 
   if (productos.length === 0) {
     productosContainer.innerHTML = `
-            <div class="col-span-full text-center py-12">
-                <i class="fas fa-box-open text-4xl text-gray-400 mb-3"></i>
-                <p class="text-gray-500 dark:text-gray-400">No se encontraron productos</p>
-            </div>
-        `;
+      <div class="col-span-full text-center py-12">
+        <i class="fas fa-box-open text-4xl text-gray-400 mb-3"></i>
+        <p class="text-gray-500 dark:text-gray-400">No se encontraron productos</p>
+      </div>
+    `;
     return;
   }
 
   productosContainer.innerHTML = productos
     .map(
       (producto) => `
-        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
-            <div class="relative pt-[100%] bg-gray-100 dark:bg-gray-700 overflow-hidden">
-                <img src="${obtenerImagenProducto(producto.id_producto)}" 
-                     alt="${producto.nombre}"
-                     class="absolute top-0 left-0 w-full h-full object-contain p-4"
-                     loading="lazy"
-                     onerror="this.onerror=null;this.src='https://via.placeholder.com/300?text=Producto'">
-            </div>
-            <div class="p-4 flex flex-col flex-grow">
-                <div class="flex-grow">
-                    <h3 class="font-semibold text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" title="${
-                      producto.nombre
-                    }">${producto.nombre}</h3>
-                    <span class="inline-block px-2 py-1 text-xs rounded-full mb-2 
-                                ${
-                                  producto.categoria.toLowerCase() === "bebidas"
-                                    ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
-                                    : producto.categoria.toLowerCase() ===
-                                      "lácteos"
-                                    ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                                    : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
-                                }">
-                        ${producto.categoria}
-                    </span>
-                </div>
-                <div class="mt-auto">
-                    <p class="text-lg font-bold text-blue-600 dark:text-blue-400 mb-3">${formatearPrecio(
-                      producto.precio
-                    )}</p>
-                    <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300 agregar-carrito"
-                            data-id="${producto.id_producto}"
-                            aria-label="Agregar ${producto.nombre} al carrito">
-                        Agregar al carrito
-                    </button>
-                </div>
-            </div>
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+        <!-- Contenedor de imagen más pequeño -->
+        <div class="relative pt-[70%] bg-gray-100 dark:bg-gray-700 overflow-hidden">
+          <img src="${obtenerImagenProducto(producto.id_producto)}" 
+               alt="${producto.nombre}"
+               class="absolute top-0 left-0 w-full h-full object-contain p-2"
+               loading="lazy"
+               onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Producto'">
         </div>
+        
+        <!-- Contenido de la card -->
+        <div class="p-3 flex flex-col flex-grow">
+          <div class="flex-grow">
+            <h3 class="font-semibold text-sm text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
+                title="${producto.nombre}">${producto.nombre}</h3>
+            
+            <!-- Categoría más compacta -->
+            <span class="inline-block px-2 py-0.5 text-[0.65rem] rounded-full mb-1 
+                        ${
+                          producto.categoria.toLowerCase() === "bebidas"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            : producto.categoria.toLowerCase() === "lácteos"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
+                        }">
+              ${producto.categoria}
+            </span>
+          </div>
+          
+          <!-- Precio y botón más compactos -->
+          <div class="mt-2">
+            <p class="text-md font-bold text-blue-600 dark:text-blue-400 mb-2">
+              ${formatearPrecio(producto.precio)}
+            </p>
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded-md 
+                          text-sm transition duration-300 agregar-carrito"
+                    data-id="${producto.id_producto}"
+                    aria-label="Agregar ${producto.nombre} al carrito">
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
     `
     )
     .join("");
 
   agregarEventosCarrito(productos);
 }
-
 function mostrarErrorProductos() {
   const productosContainer = document.getElementById("productos-container");
   if (!productosContainer) {
