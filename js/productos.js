@@ -97,9 +97,9 @@ function mostrarProductos(productos) {
   productosContainer.innerHTML = productos
     .map(
       (producto) => `
-      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
+      <div class="bg-white dark:bg-[#332f2f] rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
         <!-- Contenedor de imagen más pequeño -->
-        <div class="relative pt-[70%]  dark:bg-gray-700 overflow-hidden">
+        <div class="relative pt-[70%]   overflow-hidden">
           <img src="${obtenerImagenProducto(producto.id_producto)}" 
                alt="${producto.nombre}"
                class="absolute top-0 left-0 w-full h-full object-contain p-2">
@@ -108,9 +108,9 @@ function mostrarProductos(productos) {
         <!-- Contenido de la card -->
         <div class="p-3 flex flex-col flex-grow">
           <div class="flex-grow">
-            <h3 class="font-semibold text-center text-sm text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
+            <h3 class="font-semibold text-center text-sm text-gray-800 dark:text-white mb-1 line-clamp-2" 
                 title="${producto.nombre}">${producto.nombre}</h3>
-            <h3 class=" text-xs text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
+            <h3 class=" text-xs text-gray-800 dark:text-white mb-1 line-clamp-2" 
                 title="${producto.nombre}">${producto.descripcion}</h3>
             
             <!-- Categoría más compacta -->
@@ -128,7 +128,7 @@ function mostrarProductos(productos) {
           
           <!-- Precio y botón más compactos -->
           <div class="mt-2 flex items-center justify-between">
-            <p class="text-md font-bold text-green-600 dark:text-blue-400">
+            <p class="text-md font-bold text-green-600  dark:text-green-400">
               ${formatearPrecio(producto.precio)}
             </p>
             <button class=" bg-green-600 hover:bg-green-800 flex item-center justify-center text-white w-5 h-5 rounded-full
@@ -239,7 +239,7 @@ function mostrarCategorias(categorias) {
 // Función auxiliar para generar los ítems del carrusel
 function generarItemsCarrusel(categorias) {
   return `
-    <div class="cursor-pointer inline-block text-center p-3 dark:bg-white  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
+    <div class="cursor-pointer inline-block text-center p-3 dark:bg-[#100e10]  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
          data-categoria="todos">
       <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden
                   group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors hover:scale-110">
@@ -255,7 +255,7 @@ function generarItemsCarrusel(categorias) {
           "https://via.placeholder.com/64";
 
         return `
-        <div class="cursor-pointer inline-block text-center p-3 dark:bg-white  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
+        <div class="cursor-pointer inline-block text-center p-3 dark:bg-[#100e10] rounded-lg shadow hover:shadow-xs dark:shadow-[#1b181b] transition-all flex flex-col items-center group mx-2 hover:scale-110"
              data-categoria="${categoria}">
           <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
             <img src="${imagen}" alt="${categoria}" 
