@@ -147,7 +147,7 @@ export function obtenerImagenProducto(idProducto) {
 
   const producto = productosConImagen.find((p) => p.id_producto === idProducto);
 
-  // Si no encontramos la imagen, usamos un placeholder genérico
+  // Si no encontramos la imagen, usamos un placeholder genéricos
   return (
     producto?.imagen || "https://via.placeholder.com/100x100?text=Producto"
   );
