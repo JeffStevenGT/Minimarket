@@ -168,3 +168,19 @@
   font-weight: 700;
   font-style: normal;
 }
+
+/* flotante */
+
+.float-loop {
+  animation: floatY 5s ease-in-out infinite;
+}
+
+@keyframes floatY {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(30px);
+  }
+}
