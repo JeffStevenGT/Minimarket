@@ -2251,6 +2251,11 @@
       top: calc(var(--spacing) * 120);
     }
   }
+  .lg\:flex {
+    @media (width >= 64rem) {
+      display: flex;
+    }
+  }
   .lg\:grid-cols-6 {
     @media (width >= 64rem) {
       grid-template-columns: repeat(6, minmax(0, 1fr));
