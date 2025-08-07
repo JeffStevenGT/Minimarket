@@ -117,7 +117,7 @@ function mostrarProductos(productos) {
             <span class="inline-block px-2 py-0.5 text-[0.65rem] rounded-full mb-1 
                         ${
                           producto.categoria.toLowerCase() === "bebidas"
-                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            ? "bg-blue-100 text-blue-800 dark:bg-dark:bg-[#100e10] dark:text-blue-200"
                             : producto.categoria.toLowerCase() === "lácteos"
                             ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
                             : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
@@ -241,8 +241,8 @@ function generarItemsCarrusel(categorias) {
   return `
     <div class="cursor-pointer inline-block text-center p-3 dark:bg-[#100e10]  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
          data-categoria="todos">
-      <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden
-                  group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors hover:scale-110">
+      <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full bg-blue-100 dark:bg-[#100e10] flex items-center justify-center overflow-hidden
+                  group-hover:bg-blue-200 dark:group-hover:bg-[#100e10]0 transition-colors hover:scale-110">
         <img src="https://i.pinimg.com/736x/32/12/07/3212077fcfb3a41dd81c22f1e00af548.jpg" alt="Todos" class="w-full h-full object-cover">
       </div>
       <p class="font-medium text-xs md:text-sm text-gray-800 dark:text-white">Todos</p>
