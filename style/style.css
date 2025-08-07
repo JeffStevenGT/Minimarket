@@ -184,3 +184,19 @@
     transform: translateY(30px);
   }
 }
+
+/* Transición suave para las sugerencias */
+#search-suggestions {
+  transition: all 0.2s ease;
+}
+
+/* Estilo para los elementos de sugerencia */
+#search-suggestions div {
+  transition: background-color 0.2s ease;
+}
+
+/* Efecto hover en la lupa */
+#search-btn:hover {
+  transform: scale(1.1);
+  transition: transform 0.2s ease;
+}

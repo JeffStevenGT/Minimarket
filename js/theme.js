@@ -2,9 +2,8 @@
 
 // Manejo del tema claro/oscuro
 
-/**
- * Inicializa el tema de la aplicación
- */
+//Inicializa el tema de la aplicación
+
 export function inicializarTema() {
   const themeToggle = document.getElementById("theme-toggle");
   const themeIcon = document.getElementById("theme-icon");
@@ -31,11 +30,6 @@ export function inicializarTema() {
   });
 }
 
-/**
- * Aplica el tema seleccionado
- * @param {string} tema - 'light' o 'dark'
- * @param {SVGElement} icon - Icono del tema
- */
 function aplicarTema(tema, icon) {
   if (tema === "dark") {
     document.documentElement.classList.add("dark");

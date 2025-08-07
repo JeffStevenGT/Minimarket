@@ -1,4 +1,4 @@
-// MAIN.JS
+// main.js
 import { inicializarTema } from "./theme.js";
 import { inicializarAuth, estaAutenticado, obtenerRolUsuario } from "./auth.js";
 import { cargarProductos, cargarCategorias } from "./productos.js";
@@ -24,10 +24,14 @@ document.addEventListener("DOMContentLoaded", async () => {
     // 3. Inicializar carrito de compras
     inicializarCarrito();
 
-    // 4. Verificar si es admin para cargar panel especial
-    if (estaAutenticado() && obtenerRolUsuario() === "admin") {
-      await cargarPanelAdmin();
-      return; // Detener aquí si es admin
+    // 4. Verificar hash de URL para panel admin
+    if (window.location.hash === "#admin-panel") {
+      if (estaAutenticado() && obtenerRolUsuario() === "admin") {
+        await cargarPanelAdmin();
+        return;
+      } else {
+        window.location.hash = "";
+      }
     }
 
     // 5. Cargar interfaz principal para usuarios normales
@@ -37,63 +41,36 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // 6. Actualizar contador del carrito si hay items
     actualizarContadorCarrito();
-
-    // 7. Manejar errores no capturados
-    window.addEventListener("error", manejarErrorGlobal);
   } catch (error) {
     console.error("Error en la inicialización:", error);
     mostrarErrorInicial();
   }
 });
 
-// Función para manejar errores globales
-function manejarErrorGlobal(event) {
-  console.error("Error no capturado:", event.error);
+// Resto del código se mantiene igual...
+// Modifica la función inicializarBuscador en main.js
+function inicializarBuscador() {
+  const searchInput = document.getElementById("search-input");
+  const searchBtn = document.getElementById("search-btn");
+  const searchSuggestions = document.getElementById("search-suggestions");
 
-  // Mostrar notificación al usuario
-  const errorDiv = document.createElement("div");
-  errorDiv.className =
-    "fixed bottom-4 left-4 bg-red-500 text-white px-4 py-2 rounded-md shadow-lg";
-  errorDiv.innerHTML = `
-        <i class="fas fa-exclamation-triangle mr-2"></i>
-        <span>Ocurrió un error inesperado</span>
-    `;
-  document.body.appendChild(errorDiv);
-
-  setTimeout(() => {
-    errorDiv.remove();
-  }, 5000);
-}
-
-// Función para mostrar error inicial
-function mostrarErrorInicial() {
-  const main = document.querySelector("main");
-  if (main) {
-    main.innerHTML = `
-            <div class="container mx-auto px-4 py-12 text-center">
-                <i class="fas fa-exclamation-triangle text-5xl text-red-500 mb-4"></i>
-                <h2 class="text-2xl font-bold text-gray-800 dark:text-white mb-2">Error al cargar la aplicación</h2>
-                <p class="text-gray-600 dark:text-gray-300 mb-6">Por favor intenta recargar la página</p>
-                <button onclick="window.location.reload()" 
-                        class="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-md transition duration-300">
-                    Recargar
-                </button>
-            </div>
-        `;
-  }
-}
-
-// Exportar funciones para acceso global (opcional)
-window.app = {
-  recargarProductos: cargarProductos,
-  limpiarCarrito: () => {
-    localStorage.removeItem("carrito");
-    actualizarContadorCarrito();
-    if (document.getElementById("cart-items")) {
-      document.getElementById("cart-items").innerHTML =
-        '<p class="py-4 text-center text-gray-500 dark:text-gray-400">Tu carrito está vacío</p>';
-      document.getElementById("cart-total").textContent = formatearPrecio(0);
+  // Mostrar/ocultar sugerencias
+  searchInput.addEventListener("input", () => {
+    const termino = searchInput.value.trim();
+    if (termino.length > 2) {
+      const sugerencias = obtenerSugerencias(termino);
+      mostrarSugerencias(sugerencias);
+    } else {
+      searchSuggestions.classList.add("hidden");
     }
-  },
-  // Otras funciones útiles...
-};
+  });
+
+  // Ocultar sugerencias al hacer clic fuera
+  document.addEventListener("click", (e) => {
+    if (!searchInput.contains(e.target)) {
+      searchSuggestions.classList.add("hidden");
+    }
+  });
+
+  // Resto del código anterior...
+}

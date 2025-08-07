@@ -2,7 +2,6 @@
 import { agregarAlCarrito, actualizarContadorCarrito } from "./carrito.js";
 import { formatearPrecio, obtenerImagenProducto } from "./utils.js";
 
-// En productos.js
 const imagenesCategorias = {
   bebidas:
     "https://i.pinimg.com/736x/c7/cb/5a/c7cb5adddce6695a80e78f91684b0308.jpg",
