@@ -97,21 +97,21 @@ function mostrarProductos(productos) {
   productosContainer.innerHTML = productos
     .map(
       (producto) => `
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
         <!-- Contenedor de imagen más pequeño -->
-        <div class="relative pt-[70%] bg-gray-100 dark:bg-gray-700 overflow-hidden">
+        <div class="relative pt-[70%]  dark:bg-gray-700 overflow-hidden">
           <img src="${obtenerImagenProducto(producto.id_producto)}" 
                alt="${producto.nombre}"
-               class="absolute top-0 left-0 w-full h-full object-contain p-2"
-               loading="lazy"
-               onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Producto'">
+               class="absolute top-0 left-0 w-full h-full object-contain p-2">
         </div>
         
         <!-- Contenido de la card -->
         <div class="p-3 flex flex-col flex-grow">
           <div class="flex-grow">
-            <h3 class="font-semibold text-sm text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
+            <h3 class="font-semibold text-center text-sm text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
                 title="${producto.nombre}">${producto.nombre}</h3>
+            <h3 class=" text-xs text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
+                title="${producto.nombre}">${producto.descripcion}</h3>
             
             <!-- Categoría más compacta -->
             <span class="inline-block px-2 py-0.5 text-[0.65rem] rounded-full mb-1 
@@ -127,15 +127,16 @@ function mostrarProductos(productos) {
           </div>
           
           <!-- Precio y botón más compactos -->
-          <div class="mt-2">
-            <p class="text-md font-bold text-blue-600 dark:text-blue-400 mb-2">
+          <div class="mt-2 flex items-center justify-between">
+            <p class="text-md font-bold text-green-600 dark:text-blue-400">
               ${formatearPrecio(producto.precio)}
             </p>
-            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded-md 
-                          text-sm transition duration-300 agregar-carrito"
-                    data-id="${producto.id_producto}"
+            <button class=" bg-green-600 hover:bg-green-800 flex item-center justify-center text-white w-5 h-5 rounded-full
+                          text-xs transition duration-300 agregar-carrito cursor-pointer hover:scale-110" data-id="${
+                            producto.id_producto
+                          }"
                     aria-label="Agregar ${producto.nombre} al carrito">
-              Agregar
+              +
             </button>
           </div>
         </div>
@@ -181,13 +182,13 @@ function agregarEventosCarrito(productos) {
           actualizarContadorCarrito();
 
           // Feedback visual
-          e.target.innerHTML = '<i class="fas fa-check mr-2"></i> ¡Agregado!';
+          e.target.innerHTML = "<p>✓</p>";
           e.target.classList.remove("bg-blue-600", "hover:bg-blue-700");
           e.target.classList.add("bg-green-500", "hover:bg-green-600");
 
           // Restaurar botón después de 1.5 segundos
           setTimeout(() => {
-            e.target.innerHTML = "Agregar al carrito";
+            e.target.innerHTML = "+";
             e.target.classList.remove("bg-green-500", "hover:bg-green-600");
             e.target.classList.add("bg-blue-600", "hover:bg-blue-700");
             e.target.disabled = false;
@@ -199,7 +200,7 @@ function agregarEventosCarrito(productos) {
           e.target.classList.add("bg-red-500", "hover:bg-red-600");
 
           setTimeout(() => {
-            e.target.innerHTML = "Agregar al carrito";
+            e.target.innerHTML = "+";
             e.target.classList.remove("bg-red-500", "hover:bg-red-600");
             e.target.classList.add("bg-blue-600", "hover:bg-blue-700");
             e.target.disabled = false;
@@ -238,13 +239,13 @@ function mostrarCategorias(categorias) {
 // Función auxiliar para generar los ítems del carrusel
 function generarItemsCarrusel(categorias) {
   return `
-    <div class="cursor-pointer inline-block text-center p-3 bg-white dark:bg-gray-700 rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2"
+    <div class="cursor-pointer inline-block text-center p-3 dark:bg-white  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
          data-categoria="todos">
-      <div class="w-16 h-16 mb-2 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden
-                  group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors">
-        <img src="https://ejemplo.com/ruta/todos.jpg" alt="Todos" class="w-full h-full object-cover">
+      <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full bg-blue-100 dark:bg-blue-900 flex items-center justify-center overflow-hidden
+                  group-hover:bg-blue-200 dark:group-hover:bg-blue-800 transition-colors hover:scale-110">
+        <img src="https://i.pinimg.com/736x/32/12/07/3212077fcfb3a41dd81c22f1e00af548.jpg" alt="Todos" class="w-full h-full object-cover">
       </div>
-      <p class="font-medium text-xs text-gray-800 dark:text-white">Todos</p>
+      <p class="font-medium text-xs md:text-sm text-gray-800 dark:text-white">Todos</p>
     </div>
     
     ${categorias
@@ -254,18 +255,18 @@ function generarItemsCarrusel(categorias) {
           "https://via.placeholder.com/64";
 
         return `
-        <div class="cursor-pointer inline-block text-center p-3 bg-white dark:bg-gray-700 rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2"
+        <div class="cursor-pointer inline-block text-center p-3 dark:bg-white  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
              data-categoria="${categoria}">
-          <div class="w-16 h-16 mb-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
+          <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
             <img src="${imagen}" alt="${categoria}" 
-                 class="w-full h-full object-cover hover:scale-105 transition-transform"
+                 class="w-full h-full object-cover hover:scale-110 transition-transform"
                  loading="lazy"
                  onerror="this.onerror=null;this.src='https://via.placeholder.com/64?text=${categoria.substring(
                    0,
                    3
                  )}'">
           </div>
-          <p class="font-medium text-xs text-gray-800 dark:text-white">${categoria}</p>
+          <p class="font-medium text-xs md:text-sm text-gray-800 dark:text-white">${categoria}</p>
         </div>
       `;
       })

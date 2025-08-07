@@ -162,3 +162,9 @@
 .input_field[type="number"] {
   -moz-appearance: textfield;
 }
+
+#bienvenido {
+  font-family: "Poppins", sans-serif;
+  font-weight: 700;
+  font-style: normal;
+}

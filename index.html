@@ -10,6 +10,12 @@
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
     />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap"
+      rel="stylesheet"
+    />
   </head>
   <body
     class="bg-gray-50 dark:bg-gray-900 transition-colors duration-300 overflow-x-hidden w-screen"
@@ -17,7 +23,7 @@
     <!-- Navbar -->
     <nav
       id="navbar"
-      class="bg-[#2b8606] dark:bg-[#08502f] px-2 md:pl-15 md:pr-11 fixed shadow-md w-screen z-10"
+      class="bg-[#085e28] dark:bg-[#08502f] px-2 md:pl-15 md:pr-11 shadow-md w-screen z-10"
     >
       <div class="py-2 flex items-center justify-between">
         <a href="#" class="text-xl font-bold"
@@ -31,7 +37,7 @@
           >
             <svg
               id="theme-icon"
-              class="w-5 h-5 text-[#f3e244] dark:text-yellow-300"
+              class="w-5 h-5 text-yellow-300 dark:text-yellow-300"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
@@ -494,39 +500,28 @@
       </form>
     </div>
 
-    <!-- Nav Solo para ocupar espacio -->
-    <nav
-      id="navbar"
-      class="bg-[#2b8606] dark:bg-gray-800 shadow-md w-full z-10"
-    >
-      <div
-        class="container mx-auto px-4 py-2 flex justify-between items-center"
-      >
-        <a href="#" class="text-xl font-bold"
-          ><img src="./img/Qorimarket.png" alt="" class="w-35"
-        /></a>
-      </div>
-    </nav>
-
     <!-- Contenido principal -->
-    <main class="bg-[#3a9609] dark:bg-[#1d6d34]">
+    <main class="bg-[#eeeeee] dark:bg-[#3a9609]">
       <!-- Hero Section -->
       <section
         class="bg-[#409a12] dark:bg-blue-800 text-white py-8 md:py-20 bg-cover bg-center relative"
-        style="background-image: url('img/hero-image.png')"
+        style="background-image: url('img/hero-image3.png')"
       >
         <div
           class="container px-3 md:px-15 md:py-10 flex flex-col md:flex-row items-center"
         >
           <div class="md:w-1/2 mb-8 md:mb-0">
-            <h1 class="text-4xl md:text-5xl font-bold mb-4">
-              Bienvenido a Qorimarket
+            <h1
+              id="bienvenido"
+              class="text-3xl text-[#05431c] md:text-5xl font-bold mb-1"
+            >
+              BIENVENIDO <br />A QORIMARKET
             </h1>
-            <p class="text-xl mb-6">
+            <p class="text-sm mb-6 text-[#085e28]">
               Los mejores productos al mejor precio, directamente a tu hogar.
             </p>
             <button
-              class="bg-[#eaa300] hover:bg-[#f7b722] px-6 py-3 rounded-lg font-medium transition duration-300 text-white cursor-pointer"
+              class="bg-[#ff9900] hover:bg-[#f7b722] px-6 py-3 rounded-lg font-medium transition duration-300 text-white cursor-pointer"
             >
               Explorar productos
             </button>
@@ -540,12 +535,12 @@
             />
           </div> -->
         <div
-          class="absolute bottom-0 left-0 w-full button-0 h-16 bg-gradient-to-t from-[#3a9609]/100 to-transparent dark:from-gray-800/100"
+          class="absolute bottom-0 left-0 w-full button-0 h-16 bg-gradient-to-t from-[#eeeeee]/100 to-transparent dark:from-gray-800/100"
         ></div>
       </section>
 
       <!-- Carrusel de categorías -->
-      <section class="py-3 overflow-hidden absolute w-screen top-84 md:top-100">
+      <section class="py-3 overflow-hidden w-screen">
         <div class="flex flex-col">
           <!--           <h2 class="text-2xl font-bold mb-6 px-15 text-white dark:text-white">
             Categorías
@@ -562,9 +557,9 @@
       </section>
 
       <!-- Productos -->
-      <section class="py-8 pt-29">
+      <section class="py-8">
         <div class="px-5 md:px-15">
-          <h2 class="text-2xl font-bold mb-6 text-white dark:text-white">
+          <h2 class="text-2xl font-bold mb-6 text-[#383e41] dark:text-white">
             Nuestros productos
           </h2>
           <div
@@ -572,13 +567,61 @@
             id="productos-container"
           >
             <!-- Los productos se cargarán aquí dinámicamente -->
+          `
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+        <!-- Contenedor de imagen más pequeño -->
+        <div class="relative pt-[70%] bg-gray-100 dark:bg-gray-700 overflow-hidden">
+          <img src="${obtenerImagenProducto(producto.id_producto)}" 
+               alt="${producto.nombre}"
+               class="absolute top-0 left-0 w-full h-full object-contain p-2"
+               loading="lazy"
+               onerror="this.onerror=null;this.src='https://via.placeholder.com/150?text=Producto'">
+        </div>
+        
+        <!-- Contenido de la card -->
+        <div class="p-3 flex flex-col flex-grow">
+          <div class="flex-grow">
+            <h3 class="font-semibold text-sm text-gray-800 dark:text-gray-200 mb-1 line-clamp-2" 
+                title="${producto.nombre}">${producto.nombre}</h3>
+            
+            <!-- Categoría más compacta -->
+            <span class="inline-block px-2 py-0.5 text-[0.65rem] rounded-full mb-1 
+                        ${
+                          producto.categoria.toLowerCase() === "bebidas"
+                            ? "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200"
+                            : producto.categoria.toLowerCase() === "lácteos"
+                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
+                            : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
+                        }">
+              ${producto.categoria}
+            </span>
+          </div>
+          
+          <!-- Precio y botón más compactos -->
+          <div class="mt-2">
+            <p class="text-md font-bold text-blue-600 dark:text-blue-400 mb-2">
+              ${formatearPrecio(producto.precio)}
+            </p>
+            <button class="w-full bg-blue-600 hover:bg-blue-700 text-white py-1.5 px-3 rounded-md 
+                          text-sm transition duration-300 agregar-carrito"
+                    data-id="${producto.id_producto}"
+                    aria-label="Agregar ${producto.nombre} al carrito">
+              Agregar
+            </button>
+          </div>
+        </div>
+      </div>
+
+
+
+
           </div>
         </div>
       </section>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-gray-800 dark:bg-gray-900 text-white py-4">
+    <footer class="bg-[#085e28] dark:bg-gray-900 text-white py-4">
       <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row justify-between items-center">
           <div class="mb-6 md:mb-0">
@@ -589,38 +632,40 @@
                 class="h-10 md:h-15"
               />
             </div>
-            <p class="mt-2 ml-3 text-gray-400">
+            <p class="mt-2 ml-3 text-gray-200">
               Productos de primera necesidad para tu hogar
             </p>
           </div>
 
           <div class="grid grid-cols-2 md:grid-cols-3 gap-8">
             <div>
-              <h3 class="text-lg font-semibold mb-4">Enlaces</h3>
-              <ul class="space-y-2">
+              <h3 class="text-lg font-semibold mb-2">Enlaces</h3>
+              <ul class="space-y-1">
                 <li>
-                  <a href="#" class="text-gray-400 hover:text-white transition"
+                  <a
+                    href="#"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Inicio</a
                   >
                 </li>
                 <li>
                   <a
                     href="#productos"
-                    class="text-gray-400 hover:text-white transition"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Productos</a
                   >
                 </li>
                 <li>
                   <a
                     href="#ofertas"
-                    class="text-gray-400 hover:text-white transition"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Ofertas</a
                   >
                 </li>
                 <li>
                   <a
                     href="#contacto"
-                    class="text-gray-400 hover:text-white transition"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Contacto</a
                   >
                 </li>
@@ -628,20 +673,26 @@
             </div>
 
             <div>
-              <h3 class="text-lg font-semibold mb-4">Legal</h3>
-              <ul class="space-y-2">
+              <h3 class="text-lg font-semibold mb-2">Legal</h3>
+              <ul class="space-y-1">
                 <li>
-                  <a href="#" class="text-gray-400 hover:text-white transition"
+                  <a
+                    href="#"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Términos</a
                   >
                 </li>
                 <li>
-                  <a href="#" class="text-gray-400 hover:text-white transition"
+                  <a
+                    href="#"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Privacidad</a
                   >
                 </li>
                 <li>
-                  <a href="#" class="text-gray-400 hover:text-white transition"
+                  <a
+                    href="#"
+                    class="text-gray-200 text-xs hover:text-white transition"
                     >Cookies</a
                   >
                 </li>
@@ -649,11 +700,13 @@
             </div>
 
             <div>
-              <h3 class="text-lg font-semibold mb-4">Contacto</h3>
+              <h3 class="text-lg font-semibold mb-2">Contacto</h3>
               <ul class="space-y-2">
-                <li class="text-gray-400">info@Qorimarket.com</li>
-                <li class="text-gray-400">+51 902539586</li>
-                <li class="text-gray-400">Calle Principal 123, Trujilo-Pe</li>
+                <li class="text-gray-200 text-xs">info@Qorimarket.com</li>
+                <li class="text-gray-200 text-xs">+51 902539586</li>
+                <li class="text-gray-200 text-xs">
+                  Calle Principal 123, Trujilo-Pe
+                </li>
               </ul>
             </div>
           </div>
