@@ -25,6 +25,9 @@ export async function cargarPanelAdmin() {
   // Ocultar contenido principal
   document.querySelector("main").classList.add("hidden");
 
+  // Ocultar footer
+  document.querySelector("footer").classList.add("hidden");
+  
   // Crear estructura del panel
   const adminPanel = document.createElement("div");
   adminPanel.id = "admin-panel";
@@ -677,4 +680,5 @@ export async function cargarPanelAdmin() {
     }
   }
 }
+
 
