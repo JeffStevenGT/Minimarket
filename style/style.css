@@ -1,4 +1,5 @@
-@keyframes scroll {
+/* style/style.css, al final del archivo */
+@keyframes infinite-scroll {
   0% {
     transform: translateX(0);
   }
@@ -6,14 +7,22 @@
     transform: translateX(-50%);
   }
 }
-.animate-scroll-infinite {
-  animation: scroll 60s linear infinite;
-  display: inline-block;
-}
-.animate-scroll-infinite:hover {
-  animation-play-state: paused;
+
+.animate-infinite-scroll {
+  display: flex;
+  width: max-content; /* Ajusta el ancho al contenido */
+  animation: infinite-scroll 20s linear infinite;
 }
 
+.animate-infinite-scroll:hover {
+  animation-play-state: paused; /* Pausar animación al pasar el mouse */
+}
+
+/* Asegurar que el contenedor no corte el contenido */
+#categorias-filtros {
+  overflow: hidden;
+  white-space: nowrap;
+}
 /* modal de pago */
 
 /* From Uiverse.io by zanina-yassine */

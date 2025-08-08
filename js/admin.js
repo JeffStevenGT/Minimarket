@@ -2,21 +2,30 @@
 import {
   estaAutenticado,
   obtenerRolUsuario,
-  cerrarSesion,
   obtenerToken,
+  cerrarSesion,
 } from "./auth.js";
 import { formatearPrecio, obtenerImagenProducto } from "./utils.js";
 
 const API_BASE_URL = "https://funval-backend.onrender.com";
+const API_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...";
 
 export async function cargarPanelAdmin() {
-  if (!estaAutenticado() || obtenerRolUsuario() !== "admin") {
+  console.log("Ejecutando cargarPanelAdmin...");
+  console.log("Autenticado:", estaAutenticado(), "Rol:", obtenerRolUsuario());
+
+  // Verificar autenticación y rol
+  if (!estaAutenticado() || obtenerRolUsuario() !== "administrador") {
+    console.log("Acceso denegado, redirigiendo...");
     window.location.hash = "";
+    window.location.reload();
     return;
   }
 
+  // Ocultar contenido principal
   document.querySelector("main").classList.add("hidden");
 
+  // Crear estructura del panel
   const adminPanel = document.createElement("div");
   adminPanel.id = "admin-panel";
   adminPanel.className = "pt-16 container mx-auto px-4 py-8";
@@ -33,6 +42,7 @@ export async function cargarPanelAdmin() {
       </div>
     </div>
     
+    <!-- Estadísticas -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow">
         <h3 class="text-lg font-medium text-gray-800 dark:text-white mb-2">Productos</h3>
@@ -52,6 +62,7 @@ export async function cargarPanelAdmin() {
       </div>
     </div>
     
+    <!-- Sección de Productos -->
     <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Productos</h2>
@@ -76,9 +87,13 @@ export async function cargarPanelAdmin() {
       </div>
     </div>
     
-    <div>
+    <!-- Sección de Usuarios -->
+    <div class="mb-8">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Usuarios</h2>
+        <button id="nuevo-usuario-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition duration-300">
+          <i class="fas fa-plus mr-2"></i>Nuevo Usuario
+        </button>
       </div>
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
         <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
@@ -95,7 +110,7 @@ export async function cargarPanelAdmin() {
       </div>
     </div>
 
-    <!-- Modal para crear/editar producto -->
+    <!-- Modal Producto -->
     <div id="producto-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 flex items-center justify-center p-4">
       <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
         <div class="flex justify-between items-center mb-4">
@@ -105,28 +120,75 @@ export async function cargarPanelAdmin() {
           </button>
         </div>
         <form id="producto-form" class="space-y-4">
+          <input type="hidden" id="producto-id">
           <div>
             <label for="producto-nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre</label>
-            <input type="text" id="producto-nombre" name="nombre" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            <input type="text" id="producto-nombre" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
           </div>
           <div>
             <label for="producto-descripcion" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Descripción</label>
-            <textarea id="producto-descripcion" name="descripcion" class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
+            <textarea id="producto-descripcion" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"></textarea>
           </div>
           <div>
             <label for="producto-categoria" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Categoría</label>
-            <input type="text" id="producto-categoria" name="categoria" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            <input type="text" id="producto-categoria" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
           </div>
           <div>
             <label for="producto-precio" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Precio</label>
-            <input type="number" id="producto-precio" name="precio" step="0.01" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            <input type="number" id="producto-precio" step="0.01" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
           </div>
           <div>
             <label for="producto-stock" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Stock</label>
-            <input type="number" id="producto-stock" name="stock" required class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white" />
+            <input type="number" id="producto-stock" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
           </div>
-          <input type="hidden" id="producto-id" name="id_producto">
-          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300">Guardar</button>
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300">
+            Guardar
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Modal Usuario -->
+    <div id="usuario-modal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-30 flex items-center justify-center p-4">
+      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full p-6">
+        <div class="flex justify-between items-center mb-4">
+          <h3 id="usuario-modal-title" class="text-xl font-bold text-gray-800 dark:text-white">Nuevo Usuario</h3>
+          <button id="close-usuario-modal" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <i class="fas fa-times"></i>
+          </button>
+        </div>
+        <form id="usuario-form" class="space-y-4">
+          <input type="hidden" id="usuario-id">
+          <div>
+            <label for="usuario-nombre" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre de usuario</label>
+            <input type="text" id="usuario-nombre" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+          </div>
+          <div>
+            <label for="usuario-completo" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Nombre completo</label>
+            <input type="text" id="usuario-completo" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+          </div>
+          <div>
+            <label for="usuario-email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Email</label>
+            <input type="email" id="usuario-email" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+          </div>
+          <div>
+            <label for="usuario-telefono" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Teléfono</label>
+            <input type="text" id="usuario-telefono" required class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+          </div>
+          <div>
+            <label for="usuario-rol" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Rol</label>
+            <select id="usuario-rol" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+              <option value="comprador">Comprador</option>
+              <option value="administrador">Administrador</option>
+            </select>
+          </div>
+          <div id="usuario-password-container">
+            <label for="usuario-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Contraseña</label>
+            <input type="password" id="usuario-password" class="w-full px-3 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white">
+          </div>
+          <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300">
+            Guardar
+          </button>
         </form>
       </div>
     </div>
@@ -134,274 +196,424 @@ export async function cargarPanelAdmin() {
 
   document.body.appendChild(adminPanel);
 
+  // Event listeners
   document.getElementById("logout-btn").addEventListener("click", cerrarSesion);
-  document.getElementById("refresh-btn").addEventListener("click", async () => {
-    await Promise.all([
-      cargarEstadisticasAdmin(),
-      cargarProductosAdmin(),
-      cargarUsuariosAdmin(),
-    ]);
-  });
+  document
+    .getElementById("refresh-btn")
+    .addEventListener("click", actualizarPanel);
   document
     .getElementById("nuevo-producto-btn")
     .addEventListener("click", () => mostrarFormularioProducto());
+  document
+    .getElementById("nuevo-usuario-btn")
+    .addEventListener("click", () => mostrarFormularioUsuario());
   document
     .getElementById("close-producto-modal")
     .addEventListener("click", () =>
       document.getElementById("producto-modal").classList.add("hidden")
     );
-
-  await Promise.all([
-    cargarEstadisticasAdmin(),
-    cargarProductosAdmin(),
-    cargarUsuariosAdmin(),
-  ]);
-}
-
-async function cargarEstadisticasAdmin() {
-  try {
-    const [productosRes, usuariosRes, ventasRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/productos/?skip=0&limit=100`, {
-        headers: { Authorization: `Bearer ${obtenerToken()}` },
-      }),
-      fetch(`${API_BASE_URL}/usuarios/?skip=0&limit=100`, {
-        headers: { Authorization: `Bearer ${obtenerToken()}` },
-      }),
-      fetch(`${API_BASE_URL}/ventas/?skip=0&limit=100`, {
-        headers: { Authorization: `Bearer ${obtenerToken()}` },
-      }),
-    ]);
-
-    const productos = await productosRes.json();
-    const usuarios = await usuariosRes.json();
-    const ventas = await ventasRes.json();
-
-    const totalIngresos = ventas.reduce((sum, venta) => sum + venta.total, 0);
-
-    document.getElementById("total-productos").textContent = productos.length;
-    document.getElementById("total-usuarios").textContent = usuarios.length;
-    document.getElementById("total-ventas").textContent = ventas.length;
-    document.getElementById("total-ingresos").textContent =
-      formatearPrecio(totalIngresos);
-  } catch (error) {
-    console.error("Error al cargar estadísticas:", error);
-  }
-}
-
-async function cargarProductosAdmin() {
-  try {
-    const response = await fetch(
-      `${API_BASE_URL}/productos/?skip=0&limit=100`,
-      {
-        headers: { Authorization: `Bearer ${obtenerToken()}` },
-      }
+  document
+    .getElementById("close-usuario-modal")
+    .addEventListener("click", () =>
+      document.getElementById("usuario-modal").classList.add("hidden")
     );
-    const productos = await response.json();
-    const tbody = document.getElementById("productos-admin");
 
-    tbody.innerHTML = productos
-      .map(
-        (producto) => `
-      <tr>
-        <td class="px-6 py-4">
-          <img src="${obtenerImagenProducto(producto.id_producto)}" alt="${
-          producto.nombre
-        }" class="w-12 h-12 object-contain">
-        </td>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
-          producto.nombre
-        }</td>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
-          producto.categoria
-        }</td>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${formatearPrecio(
-          producto.precio
-        )}</td>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
-          producto.stock
-        }</td>
-        <td class="px-6 py-4">
-          <button class="editar-producto text-blue-600 hover:text-blue-800 mr-2" data-id="${
-            producto.id_producto
-          }">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="eliminar-producto text-red-600 hover:text-red-800" data-id="${
-            producto.id_producto
-          }">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `
-      )
-      .join("");
+  // Inicializar panel
+  await actualizarPanel();
 
-    document.querySelectorAll(".editar-producto").forEach((btn) => {
-      btn.addEventListener("click", () =>
-        mostrarFormularioProducto(parseInt(btn.getAttribute("data-id")))
-      );
-    });
-
-    document.querySelectorAll(".eliminar-producto").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        if (confirm("¿Seguro que desea eliminar este producto?")) {
-          await eliminarProducto(parseInt(btn.getAttribute("data-id")));
-        }
-      });
-    });
-  } catch (error) {
-    console.error("Error al cargar productos:", error);
-  }
-}
-
-async function cargarUsuariosAdmin() {
-  try {
-    const response = await fetch(`${API_BASE_URL}/usuarios/?skip=0&limit=100`, {
-      headers: { Authorization: `Bearer ${obtenerToken()}` },
-    });
-    const usuarios = await response.json();
-    const tbody = document.getElementById("usuarios-admin");
-
-    tbody.innerHTML = usuarios
-      .map(
-        (usuario) => `
-      <tr>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${usuario.username}</td>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${usuario.email}</td>
-        <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${usuario.role}</td>
-        <td class="px-6 py-4">
-          <button class="editar-usuario text-blue-600 hover:text-blue-800 mr-2" data-id="${usuario.id}">
-            <i class="fas fa-edit"></i>
-          </button>
-          <button class="eliminar-usuario text-red-600 hover:text-red-800" data-id="${usuario.id}">
-            <i class="fas fa-trash"></i>
-          </button>
-        </td>
-      </tr>
-    `
-      )
-      .join("");
-
-    document.querySelectorAll(".editar-usuario").forEach((btn) => {
-      btn.addEventListener("click", () =>
-        alert("Funcionalidad de edición de usuario no implementada")
-      );
-    });
-
-    document.querySelectorAll(".eliminar-usuario").forEach((btn) => {
-      btn.addEventListener("click", async () => {
-        if (confirm("¿Seguro que desea eliminar este usuario?")) {
-          await eliminarUsuario(parseInt(btn.getAttribute("data-id")));
-        }
-      });
-    });
-  } catch (error) {
-    console.error("Error al cargar usuarios:", error);
-  }
-}
-
-async function mostrarFormularioProducto(idProducto = null) {
-  const modal = document.getElementById("producto-modal");
-  const form = document.getElementById("producto-form");
-  const title = document.getElementById("producto-modal-title");
-
-  if (idProducto) {
-    title.textContent = "Editar Producto";
-    const response = await fetch(`${API_BASE_URL}/productos/${idProducto}`, {
-      headers: { Authorization: `Bearer ${obtenerToken()}` },
-    });
-    const producto = await response.json();
-
-    document.getElementById("producto-nombre").value = producto.nombre;
-    document.getElementById("producto-descripcion").value =
-      producto.descripcion || "";
-    document.getElementById("producto-categoria").value = producto.categoria;
-    document.getElementById("producto-precio").value = producto.precio;
-    document.getElementById("producto-stock").value = producto.stock;
-    document.getElementById("producto-id").value = producto.id_producto;
-  } else {
-    title.textContent = "Nuevo Producto";
-    form.reset();
-    document.getElementById("producto-id").value = "";
-  }
-
-  modal.classList.remove("hidden");
-
-  form.onsubmit = async (e) => {
-    e.preventDefault();
-    const id = document.getElementById("producto-id").value;
-    const datos = {
-      nombre: document.getElementById("producto-nombre").value,
-      descripcion: document.getElementById("producto-descripcion").value,
-      categoria: document.getElementById("producto-categoria").value,
-      precio: parseFloat(document.getElementById("producto-precio").value),
-      stock: parseInt(document.getElementById("producto-stock").value),
-    };
-
+  // CRUD Productos
+  async function cargarProductos() {
     try {
-      const url = id
-        ? `${API_BASE_URL}/productos/${id}`
-        : `${API_BASE_URL}/productos/`;
-      const method = id ? "PUT" : "POST";
-      const response = await fetch(url, {
-        method,
+      const response = await fetch(
+        `${API_BASE_URL}/productos/?skip=0&limit=100`,
+        {
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+        }
+      );
+      const productos = await response.json();
+
+      document.getElementById("total-productos").textContent = productos.length;
+
+      const tbody = document.getElementById("productos-admin");
+      tbody.innerHTML = productos
+        .map(
+          (producto) => `
+        <tr>
+          <td class="px-6 py-4">
+            <img src="${obtenerImagenProducto(producto.id_producto)}" alt="${
+            producto.nombre
+          }" class="w-12 h-12 object-contain">
+          </td>
+          <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+            producto.nombre
+          }</td>
+          <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+            producto.categoria
+          }</td>
+          <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${formatearPrecio(
+            producto.precio
+          )}</td>
+          <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+            producto.stock
+          }</td>
+          <td class="px-6 py-4">
+            <button class="editar-producto text-blue-600 hover:text-blue-800 mr-2" data-id="${
+              producto.id_producto
+            }">
+              <i class="fas fa-edit"></i>
+            </button>
+            <button class="eliminar-producto text-red-600 hover:text-red-800" data-id="${
+              producto.id_producto
+            }">
+              <i class="fas fa-trash"></i>
+            </button>
+          </td>
+        </tr>
+      `
+        )
+        .join("");
+
+      // Eventos para botones de productos
+      document.querySelectorAll(".editar-producto").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          mostrarFormularioProducto(parseInt(btn.dataset.id))
+        );
+      });
+
+      document.querySelectorAll(".eliminar-producto").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (confirm("¿Eliminar este producto?")) {
+            await eliminarProducto(parseInt(btn.dataset.id));
+            await actualizarPanel();
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error al cargar productos:", error);
+    }
+  }
+
+  async function crearProducto(datos) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/productos/`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${obtenerToken()}`,
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+        body: JSON.stringify(datos),
+      });
+      return response.ok;
+    } catch (error) {
+      console.error("Error al crear producto:", error);
+      return false;
+    }
+  }
+
+  async function actualizarProducto(id, datos) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/productos/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+        body: JSON.stringify(datos),
+      });
+      return response.ok;
+    } catch (error) {
+      console.error("Error al actualizar producto:", error);
+      return false;
+    }
+  }
+
+  async function eliminarProducto(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/productos/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      });
+      return response.ok;
+    } catch (error) {
+      console.error("Error al eliminar producto:", error);
+      return false;
+    }
+  }
+
+  async function mostrarFormularioProducto(id = null) {
+    const modal = document.getElementById("producto-modal");
+    const form = document.getElementById("producto-form");
+    const title = document.getElementById("producto-modal-title");
+
+    if (id) {
+      title.textContent = "Editar Producto";
+      try {
+        const response = await fetch(`${API_BASE_URL}/productos/${id}`, {
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+        });
+        const producto = await response.json();
+
+        document.getElementById("producto-id").value = producto.id_producto;
+        document.getElementById("producto-nombre").value = producto.nombre;
+        document.getElementById("producto-descripcion").value =
+          producto.descripcion || "";
+        document.getElementById("producto-categoria").value =
+          producto.categoria;
+        document.getElementById("producto-precio").value = producto.precio;
+        document.getElementById("producto-stock").value = producto.stock;
+      } catch (error) {
+        console.error("Error al cargar producto:", error);
+      }
+    } else {
+      title.textContent = "Nuevo Producto";
+      form.reset();
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const datos = {
+        nombre: document.getElementById("producto-nombre").value,
+        descripcion: document.getElementById("producto-descripcion").value,
+        categoria: document.getElementById("producto-categoria").value,
+        precio: parseFloat(document.getElementById("producto-precio").value),
+        stock: parseInt(document.getElementById("producto-stock").value),
+      };
+
+      const id = document.getElementById("producto-id").value;
+      const success = id
+        ? await actualizarProducto(id, datos)
+        : await crearProducto(datos);
+
+      if (success) {
+        modal.classList.add("hidden");
+        await actualizarPanel();
+      } else {
+        alert("Error al guardar el producto");
+      }
+    };
+
+    modal.classList.remove("hidden");
+  }
+
+  // CRUD Usuarios - Implementación completa
+  async function cargarUsuarios() {
+    try {
+      const response = await fetch(
+        `${API_BASE_URL}/usuarios/?skip=0&limit=100`,
+        {
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+        }
+      );
+      const usuarios = await response.json();
+
+      document.getElementById("total-usuarios").textContent = usuarios.length;
+
+      const tbody = document.getElementById("usuarios-admin");
+      tbody.innerHTML = usuarios
+        .map(
+          (usuario) => `
+            <tr>
+                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+                  usuario.nombre_usuario
+                }</td>
+                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+                  usuario.correo
+                }</td>
+                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      usuario.rol === "administrador"
+                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                        : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                    }">
+                        ${usuario.rol}
+                    </span>
+                </td>
+                <td class="px-6 py-4">
+                    <button class="editar-usuario text-blue-600 hover:text-blue-800 mr-2" data-id="${
+                      usuario.id_usuario
+                    }">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="eliminar-usuario text-red-600 hover:text-red-800" data-id="${
+                      usuario.id_usuario
+                    }">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </td>
+            </tr>
+        `
+        )
+        .join("");
+
+      // Eventos para botones de usuarios
+      document.querySelectorAll(".editar-usuario").forEach((btn) => {
+        btn.addEventListener("click", () =>
+          mostrarFormularioUsuario(parseInt(btn.dataset.id))
+        );
+      });
+
+      document.querySelectorAll(".eliminar-usuario").forEach((btn) => {
+        btn.addEventListener("click", async () => {
+          if (confirm("¿Eliminar este usuario?")) {
+            await eliminarUsuario(parseInt(btn.dataset.id));
+            await actualizarPanel();
+          }
+        });
+      });
+    } catch (error) {
+      console.error("Error al cargar usuarios:", error);
+      alert("Error al cargar usuarios");
+    }
+  }
+
+  async function crearUsuario(datos) {
+    try {
+      // Determinar el endpoint correcto según el rol
+      const endpoint =
+        datos.rol === "administrador"
+          ? `${API_BASE_URL}/registro-admin`
+          : `${API_BASE_URL}/registro-comprador`;
+
+      const response = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
         },
         body: JSON.stringify(datos),
       });
 
-      if (response.ok) {
-        modal.classList.add("hidden");
-        form.reset();
-        await cargarProductosAdmin();
-        await cargarEstadisticasAdmin();
-      } else {
-        alert("Error al guardar el producto");
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al crear usuario");
       }
+
+      return true;
     } catch (error) {
-      console.error("Error:", error);
-      alert("Error al conectar con el servidor");
+      console.error("Error al crear usuario:", error);
+      alert(error.message || "Error al crear usuario");
+      return false;
     }
-  };
-}
-
-async function eliminarProducto(idProducto) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/productos/${idProducto}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${obtenerToken()}` },
-    });
-
-    if (response.ok) {
-      await cargarProductosAdmin();
-      await cargarEstadisticasAdmin();
-    } else {
-      alert("Error al eliminar el producto");
-    }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Error al conectar con el servidor");
   }
-}
 
-async function eliminarUsuario(idUsuario) {
-  try {
-    const response = await fetch(`${API_BASE_URL}/usuarios/${idUsuario}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${obtenerToken()}` },
-    });
+  async function actualizarUsuario(id, datos) {
+    try {
+      // Eliminamos la contraseña si está vacía
+      if (!datos.contraseña || datos.contraseña.trim() === "") {
+        delete datos.contraseña;
+      }
 
-    if (response.ok) {
-      await cargarUsuariosAdmin();
-      await cargarEstadisticasAdmin();
-    } else {
-      alert("Error al eliminar el usuario");
+      const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_TOKEN}`,
+        },
+        body: JSON.stringify(datos),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al actualizar usuario");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error al actualizar usuario:", error);
+      alert(error.message || "Error al actualizar usuario");
+      return false;
     }
-  } catch (error) {
-    console.error("Error:", error);
-    alert("Error al conectar con el servidor");
+  }
+
+  async function eliminarUsuario(id) {
+    try {
+      const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${API_TOKEN}` },
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al eliminar usuario");
+      }
+
+      return true;
+    } catch (error) {
+      console.error("Error al eliminar usuario:", error);
+      alert(error.message || "Error al eliminar usuario");
+      return false;
+    }
+  }
+
+  async function mostrarFormularioUsuario(id = null) {
+    const modal = document.getElementById("usuario-modal");
+    const form = document.getElementById("usuario-form");
+    const title = document.getElementById("usuario-modal-title");
+    const passwordContainer = document.getElementById(
+      "usuario-password-container"
+    );
+
+    if (id) {
+      title.textContent = "Editar Usuario";
+      passwordContainer.classList.add("hidden"); // Ocultar campo de contraseña en edición
+
+      try {
+        const response = await fetch(`${API_BASE_URL}/usuarios/${id}`, {
+          headers: { Authorization: `Bearer ${API_TOKEN}` },
+        });
+        const usuario = await response.json();
+
+        document.getElementById("usuario-id").value = usuario.id_usuario;
+        document.getElementById("usuario-nombre").value =
+          usuario.nombre_usuario;
+        document.getElementById("usuario-completo").value =
+          usuario.nombre_completo;
+        document.getElementById("usuario-email").value = usuario.correo;
+        document.getElementById("usuario-telefono").value = usuario.telefono;
+        document.getElementById("usuario-rol").value = usuario.rol;
+      } catch (error) {
+        console.error("Error al cargar usuario:", error);
+        alert("Error al cargar datos del usuario");
+      }
+    } else {
+      title.textContent = "Nuevo Usuario";
+      passwordContainer.classList.remove("hidden"); // Mostrar campo de contraseña para nuevo usuario
+      form.reset();
+    }
+
+    form.onsubmit = async (e) => {
+      e.preventDefault();
+      const datos = {
+        nombre_usuario: document.getElementById("usuario-nombre").value,
+        nombre_completo: document.getElementById("usuario-completo").value,
+        correo: document.getElementById("usuario-email").value,
+        telefono: document.getElementById("usuario-telefono").value,
+        rol: document.getElementById("usuario-rol").value,
+      };
+
+      // Solo agregar contraseña si es nuevo usuario o se especificó una
+      const password = document.getElementById("usuario-password").value;
+      if (password) {
+        datos.contraseña = password;
+      }
+
+      const id = document.getElementById("usuario-id").value;
+      const success = id
+        ? await actualizarUsuario(id, datos)
+        : await crearUsuario(datos);
+
+      if (success) {
+        modal.classList.add("hidden");
+        await actualizarPanel();
+      }
+    };
+
+    modal.classList.remove("hidden");
+  }
+
+  // Función para actualizar todo el panel
+  async function actualizarPanel() {
+    await Promise.all([cargarProductos(), cargarUsuarios()]);
+    // Aquí también podrías cargar estadísticas de ventas si es necesario
   }
 }

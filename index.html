@@ -314,7 +314,7 @@
       id="payment-modal"
       class="hidden fixed inset-0 bg-black/80 z-40 flex items-center justify-center p-4"
     >
-      <form class="form bg-white rounded-2xl relative">
+      <form id="payment-form" class="form bg-white rounded-2xl relative">
         <div class="payment--options flex">
           <button name="paypal" type="button">
             <svg
@@ -508,7 +508,7 @@
           <div class="relative">
             <div
               id="categorias-filtros"
-              class="whitespace-nowrap overflow-x-hidden"
+              class="flex animate-infinite-scroll"
             ></div>
           </div>
         </div>
@@ -625,7 +625,7 @@
     <script type="module" src="./js/carrito.js"></script>
     <script type="module" src="./js/productos.js"></script>
     <script type="module" src="./js/admin.js"></script>
-    <script type="module" src="./js/perfil.js"></script>
     <script type="module" src="./js/main.js"></script>
+    <script type="module" src="./js/perfil.js"></script>
   </body>
 </html>

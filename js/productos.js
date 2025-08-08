@@ -1,7 +1,17 @@
-// PRODUCTOS.JS
+//productos.js
 import { agregarAlCarrito, actualizarContadorCarrito } from "./carrito.js";
-import { formatearPrecio, obtenerImagenProducto } from "./utils.js";
+import {
+  formatearPrecio,
+  obtenerImagenProducto,
+  mostrarError,
+} from "./utils.js";
+import { estaAutenticado } from "./auth.js";
 
+const API_BASE_URL = "https://funval-backend.onrender.com";
+let productosCache = null;
+let categoriasCache = null;
+
+// Mapeo de imágenes por categoría
 const imagenesCategorias = {
   bebidas:
     "https://i.pinimg.com/736x/c7/cb/5a/c7cb5adddce6695a80e78f91684b0308.jpg",
@@ -35,25 +45,38 @@ const imagenesCategorias = {
     "https://i.pinimg.com/736x/28/4a/3f/284a3f14cc71930b37e901670c3a7812.jpg",
 };
 
-// Cache de productos para evitar múltiples llamadas a la API
-let cacheProductos = null;
-let cacheCategorias = null;
-
-export async function cargarProductos(categoria = null) {
+// Función principal para cargar productos
+export async function cargarProductos(
+  categoria = null,
+  terminoBusqueda = null
+) {
   try {
-    // Usar cache si está disponible
-    if (!cacheProductos) {
+    // Cargar productos si no están en caché
+    if (!productosCache) {
       const response = await fetch(
-        "https://funval-backend.onrender.com/productos/?skip=0&limit=100"
+        `${API_BASE_URL}/productos/?skip=0&limit=100`
       );
-      cacheProductos = await response.json();
+      if (!response.ok) throw new Error("Error al cargar productos");
+      productosCache = await response.json();
     }
 
-    const productosFiltrados = categoria
-      ? cacheProductos.filter(
-          (p) => p.categoria.toLowerCase() === categoria.toLowerCase()
-        )
-      : cacheProductos;
+    // Filtrar productos por categoría y término de búsqueda
+    let productosFiltrados = [...productosCache];
+
+    if (categoria && categoria.toLowerCase() !== "todos") {
+      productosFiltrados = productosFiltrados.filter(
+        (p) => p.categoria.toLowerCase() === categoria.toLowerCase()
+      );
+    }
+
+    if (terminoBusqueda) {
+      const termino = terminoBusqueda.toLowerCase();
+      productosFiltrados = productosFiltrados.filter(
+        (p) =>
+          p.nombre.toLowerCase().includes(termino) ||
+          p.descripcion?.toLowerCase().includes(termino)
+      );
+    }
 
     mostrarProductos(productosFiltrados);
   } catch (error) {
@@ -62,26 +85,35 @@ export async function cargarProductos(categoria = null) {
   }
 }
 
+// Función para cargar categorías
 export async function cargarCategorias() {
   try {
-    if (!cacheCategorias) {
-      if (!cacheProductos) {
+    if (!categoriasCache) {
+      if (!productosCache) {
         const response = await fetch(
-          "https://funval-backend.onrender.com/productos/?skip=0&limit=100"
+          `${API_BASE_URL}/productos/?skip=0&limit=100`
         );
-        cacheProductos = await response.json();
+        if (!response.ok) throw new Error("Error al cargar productos");
+        productosCache = await response.json();
       }
-      cacheCategorias = [...new Set(cacheProductos.map((p) => p.categoria))];
+
+      // Obtener categorías únicas de los productos
+      const categoriasUnicas = [
+        ...new Set(productosCache.map((p) => p.categoria)),
+      ];
+      categoriasCache = ["todos", ...categoriasUnicas];
     }
 
-    mostrarCategorias(cacheCategorias);
+    mostrarCategorias(categoriasCache);
   } catch (error) {
     console.error("Error al cargar categorías:", error);
   }
 }
 
+// Mostrar productos en el DOM
 function mostrarProductos(productos) {
   const productosContainer = document.getElementById("productos-container");
+  if (!productosContainer) return;
 
   if (productos.length === 0) {
     productosContainer.innerHTML = `
@@ -93,77 +125,143 @@ function mostrarProductos(productos) {
     return;
   }
 
+  const estaLogueado = estaAutenticado();
+
   productosContainer.innerHTML = productos
     .map(
       (producto) => `
-      <div class="bg-white dark:bg-[#332f2f] rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full relative">
-        <!-- Contenedor de imagen más pequeño -->
-        <div class="relative pt-[70%]   overflow-hidden">
-          <img src="${obtenerImagenProducto(producto.id_producto)}" 
-               alt="${producto.nombre}"
-               class="absolute top-0 left-0 w-full h-full object-contain p-2">
+    <div class="bg-white dark:bg-[#332f2f] rounded-2xl shadow-md overflow-hidden hover:shadow-lg transition-all duration-300 flex flex-col h-full">
+      <!-- Contenedor de imagen -->
+      <div class="relative pt-[70%] overflow-hidden">
+        <img src="${obtenerImagenProducto(producto.id_producto)}" 
+             alt="${producto.nombre}"
+             class="absolute top-0 left-0 w-full h-full object-contain p-2"
+             ">
+      </div>
+      
+      <!-- Contenido de la card -->
+      <div class="p-3 flex flex-col flex-grow">
+        <div class="flex-grow">
+          <h3 class="font-semibold text-center text-sm text-gray-800 dark:text-white mb-1 line-clamp-2">${
+            producto.nombre
+          }</h3>
+          <p class="text-xs text-gray-600 dark:text-gray-300 mb-2 line-clamp-2">${
+            producto.descripcion || "Sin descripción"
+          }</p>
+          
+          <!-- Categoría -->
+          <span class="inline-block px-2 py-0.5 text-[0.65rem] rounded-full mb-1 ${getClaseCategoria(
+            producto.categoria
+          )}">
+            ${producto.categoria}
+          </span>
         </div>
         
-        <!-- Contenido de la card -->
-        <div class="p-3 flex flex-col flex-grow">
-          <div class="flex-grow">
-            <h3 class="font-semibold text-center text-sm text-gray-800 dark:text-white mb-1 line-clamp-2" 
-                title="${producto.nombre}">${producto.nombre}</h3>
-            <h3 class=" text-xs text-gray-800 dark:text-white mb-1 line-clamp-2" 
-                title="${producto.nombre}">${producto.descripcion}</h3>
-            
-            <!-- Categoría más compacta -->
-            <span class="inline-block px-2 py-0.5 text-[0.65rem] rounded-full mb-1 
-                        ${
-                          producto.categoria.toLowerCase() === "bebidas"
-                            ? "bg-blue-100 text-blue-800 dark:bg-dark:bg-[#100e10] dark:text-blue-200"
-                            : producto.categoria.toLowerCase() === "lácteos"
-                            ? "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200"
-                            : "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200"
-                        }">
-              ${producto.categoria}
-            </span>
-          </div>
-          
-          <!-- Precio y botón más compactos -->
-          <div class="mt-2 flex items-center justify-between">
-            <p class="text-md font-bold text-green-600  dark:text-green-400">
-              ${formatearPrecio(producto.precio)}
-            </p>
-            <button class=" bg-green-600 hover:bg-green-800 flex item-center justify-center text-white w-5 h-5 rounded-full
-                          text-xs transition duration-300 agregar-carrito cursor-pointer hover:scale-110" data-id="${
-                            producto.id_producto
-                          }"
+        <!-- Precio y botón -->
+        <div class="mt-2 flex items-center justify-between">
+          <p class="text-md font-bold text-green-600 dark:text-green-400">
+            ${formatearPrecio(producto.precio)}
+          </p>
+          ${
+            estaLogueado
+              ? `
+            <button class="agregar-carrito bg-green-600 hover:bg-green-800 text-white w-5 h-5 rounded-full
+                      text-xs transition duration-300 flex items-center justify-center cursor-pointer hover:scale-110" 
+                    data-id="${producto.id_producto}"
                     aria-label="Agregar ${producto.nombre} al carrito">
               +
             </button>
-          </div>
+          `
+              : ""
+          }
         </div>
       </div>
-    `
+    </div>
+  `
     )
     .join("");
 
-  agregarEventosCarrito(productos);
+  // Agregar eventos a los botones de carrito
+  if (estaLogueado) {
+    agregarEventosCarrito(productos);
+  }
 }
+
+// Función auxiliar para clases de categoría
+function getClaseCategoria(categoria) {
+  const cat = categoria.toLowerCase();
+  if (cat === "bebidas")
+    return "bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200";
+  if (cat === "lácteos")
+    return "bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200";
+  if (cat === "frutas" || cat === "verduras")
+    return "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200";
+  if (cat === "carnes")
+    return "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200";
+  return "bg-gray-100 text-gray-800 dark:bg-gray-600 dark:text-gray-200";
+}
+
+// Mostrar error cuando falla la carga de productos
 function mostrarErrorProductos() {
   const productosContainer = document.getElementById("productos-container");
-  if (!productosContainer) {
-    console.error("No se encontró el contenedor de productos!");
-    return;
-  }
+  if (!productosContainer) return;
+
   productosContainer.innerHTML = `
     <div class="col-span-full text-center py-12">
       <i class="fas fa-exclamation-triangle text-4xl text-red-400 mb-3"></i>
       <p class="text-gray-500 dark:text-gray-400">Error al cargar los productos</p>
       <button class="mt-4 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-md transition duration-300"
-              onclick="window.app.recargarProductos()">
-          Reintentar
+              onclick="window.location.reload()">
+        Reintentar
       </button>
     </div>
   `;
 }
 
+// Mostrar categorías en el carrusel
+function mostrarCategorias(categorias) {
+  const categoriasContainer = document.getElementById("categorias-filtros");
+  if (!categoriasContainer) return;
+
+  // Crear HTML para categorías y duplicar para efecto infinito
+  const categoriasHTML = categorias
+    .map(
+      (categoria) => `
+        <div class="cursor-pointer inline-block text-center p-3 dark:bg-[#100e10] rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-1 hover:scale-105 min-w-[80px]"
+             data-categoria="${categoria}">
+          <div class="w-14 h-14 md:w-16 md:h-16 mb-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600 flex items-center justify-center">
+            <img src="${
+              imagenesCategorias[categoria.toLowerCase()] ||
+              imagenesCategorias["todos"]
+            }" 
+                 alt="${categoria}"
+                 class="w-full h-full object-cover hover:scale-110 transition-transform"
+                 loading="lazy"
+                 >
+          </div>
+          <p class="font-medium text-xs text-gray-800 dark:text-white">${categoria}</p>
+        </div>
+      `
+    )
+    .join("");
+
+  // Duplicar el contenido para el efecto infinito
+  categoriasContainer.innerHTML = `
+    <div class="flex space-x-4 py-2">
+      ${categoriasHTML}${categoriasHTML}
+    </div>
+  `;
+
+  // Agregar eventos a los filtros de categoría
+  document.querySelectorAll("[data-categoria]").forEach((filtro) => {
+    filtro.addEventListener("click", () => {
+      const categoria = filtro.getAttribute("data-categoria");
+      cargarProductos(categoria === "todos" ? null : categoria);
+    });
+  });
+}
+
+// Agregar eventos a los botones de carrito
 function agregarEventosCarrito(productos) {
   document.querySelectorAll(".agregar-carrito").forEach((btn) => {
     btn.addEventListener("click", async (e) => {
@@ -172,37 +270,37 @@ function agregarEventosCarrito(productos) {
 
       if (producto) {
         // Deshabilitar botón temporalmente
-        e.target.disabled = true;
-        e.target.innerHTML =
-          '<i class="fas fa-spinner fa-spin mr-2"></i> Agregando...';
+        const boton = e.target;
+        boton.disabled = true;
+        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
 
         try {
           await agregarAlCarrito(producto);
           actualizarContadorCarrito();
 
           // Feedback visual
-          e.target.innerHTML = "<p>✓</p>";
-          e.target.classList.remove("bg-blue-600", "hover:bg-blue-700");
-          e.target.classList.add("bg-green-500", "hover:bg-green-600");
+          boton.innerHTML = '<i class="fas fa-check"></i>';
+          boton.classList.remove("bg-green-600", "hover:bg-green-800");
+          boton.classList.add("bg-blue-600");
 
           // Restaurar botón después de 1.5 segundos
           setTimeout(() => {
-            e.target.innerHTML = "+";
-            e.target.classList.remove("bg-green-500", "hover:bg-green-600");
-            e.target.classList.add("bg-blue-600", "hover:bg-blue-700");
-            e.target.disabled = false;
+            boton.innerHTML = "+";
+            boton.classList.remove("bg-blue-600");
+            boton.classList.add("bg-green-600", "hover:bg-green-800");
+            boton.disabled = false;
           }, 1500);
         } catch (error) {
           console.error("Error al agregar al carrito:", error);
-          e.target.innerHTML = '<i class="fas fa-times mr-2"></i> Error';
-          e.target.classList.remove("bg-blue-600", "hover:bg-blue-700");
-          e.target.classList.add("bg-red-500", "hover:bg-red-600");
+          boton.innerHTML = '<i class="fas fa-times"></i>';
+          boton.classList.remove("bg-green-600", "hover:bg-green-800");
+          boton.classList.add("bg-red-500");
 
           setTimeout(() => {
-            e.target.innerHTML = "+";
-            e.target.classList.remove("bg-red-500", "hover:bg-red-600");
-            e.target.classList.add("bg-blue-600", "hover:bg-blue-700");
-            e.target.disabled = false;
+            boton.innerHTML = "+";
+            boton.classList.remove("bg-red-500");
+            boton.classList.add("bg-green-600", "hover:bg-green-800");
+            boton.disabled = false;
           }, 1500);
         }
       }
@@ -210,67 +308,30 @@ function agregarEventosCarrito(productos) {
   });
 }
 
-function mostrarCategorias(categorias) {
-  const categoriasContainer = document.getElementById("categorias-filtros");
+// Inicializar buscador de productos
+export function inicializarBuscador() {
+  const searchInput = document.createElement("input");
+  searchInput.id = "search-input";
+  searchInput.type = "search";
+  searchInput.placeholder = "Buscar productos...";
+  searchInput.className =
+    "px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white";
 
-  // Estructura para el carrusel infinito
-  categoriasContainer.innerHTML = `
-    <div class="relative overflow-hidden">
-      <div id="carrusel-categorias" class="flex space-x-4 py-2 animate-scroll-infinite whitespace-nowrap">
-        <!-- Duplicamos las categorías para efecto infinito -->
-        ${generarItemsCarrusel(categorias)}
-        ${generarItemsCarrusel(categorias)}
-      </div>
-    </div>
-  `;
+  // Insertar en el navbar después del logo
+  const navbar = document.querySelector("nav > div");
+  if (navbar) {
+    navbar.insertBefore(searchInput, navbar.children[1]);
+  }
 
-  // Agregar eventos a los filtros
-  document.querySelectorAll("[data-categoria]").forEach((filtro) => {
-    filtro.addEventListener("click", () => {
-      const categoria = filtro.getAttribute("data-categoria");
-      const categoriaNormalizada =
-        categoria === "todos" ? null : categoria.toLowerCase();
-      cargarProductos(categoriaNormalizada);
-    });
+  // Evento de búsqueda con debounce
+  let timeout;
+  searchInput.addEventListener("input", (e) => {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => {
+      const termino = e.target.value.trim();
+      if (termino.length >= 3 || termino.length === 0) {
+        cargarProductos(null, termino);
+      }
+    }, 300);
   });
 }
-
-// Función auxiliar para generar los ítems del carrusel
-function generarItemsCarrusel(categorias) {
-  return `
-    <div class="cursor-pointer inline-block text-center p-3 dark:bg-[#100e10]  rounded-lg shadow hover:shadow-md transition-all flex flex-col items-center group mx-2 hover:scale-110"
-         data-categoria="todos">
-      <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full bg-blue-100 dark:bg-[#100e10] flex items-center justify-center overflow-hidden
-                  group-hover:bg-blue-200 dark:group-hover:bg-[#100e10]0 transition-colors hover:scale-110">
-        <img src="https://i.pinimg.com/736x/32/12/07/3212077fcfb3a41dd81c22f1e00af548.jpg" alt="Todos" class="w-full h-full object-cover">
-      </div>
-      <p class="font-medium text-xs md:text-sm text-gray-800 dark:text-white">Todos</p>
-    </div>
-    
-    ${categorias
-      .map((categoria) => {
-        const imagen =
-          imagenesCategorias[categoria.toLowerCase()] ||
-          "https://via.placeholder.com/64";
-
-        return `
-        <div class="cursor-pointer inline-block text-center p-3 dark:bg-[#100e10] rounded-lg shadow hover:shadow-xs dark:shadow-[#1b181b] transition-all flex flex-col items-center group mx-2 hover:scale-110"
-             data-categoria="${categoria}">
-          <div class="w-16 h-16 md:w-26 md:h-26 mb-2 rounded-full overflow-hidden bg-gray-100 dark:bg-gray-600">
-            <img src="${imagen}" alt="${categoria}" 
-                 class="w-full h-full object-cover hover:scale-110 transition-transform"
-                 loading="lazy"
-                 onerror="this.onerror=null;this.src='https://via.placeholder.com/64?text=${categoria.substring(
-                   0,
-                   3
-                 )}'">
-          </div>
-          <p class="font-medium text-xs md:text-sm text-gray-800 dark:text-white">${categoria}</p>
-        </div>
-      `;
-      })
-      .join("")}
-  `;
-}
-
-// Resto de tus funciones (agregarEventosCarrito, mostrarErrorProductos, etc.)

@@ -1,61 +1,108 @@
-// CARRITO.JS
-import { formatearPrecio, obtenerImagenProducto } from "./utils.js";
+// carrito
+import { estaAutenticado, obtenerToken, obtenerUserId } from "./auth.js";
+import {
+  formatearPrecio,
+  obtenerImagenProducto,
+  mostrarError,
+  ocultarError,
+} from "./utils.js";
 
+const API_BASE_URL = "https://funval-backend.onrender.com";
 let carrito = JSON.parse(localStorage.getItem("carrito")) || [];
 
 export function inicializarCarrito() {
+  // Solo inicializar si el usuario está logueado
+  if (!estaAutenticado()) {
+    ocultarElementosCarrito();
+    return;
+  }
+
   const cartBtn = document.getElementById("cart-btn");
   const cartModal = document.getElementById("cart-modal");
   const closeCartModal = document.getElementById("close-cart-modal");
   const checkoutBtn = document.getElementById("checkout-btn");
   const paymentModal = document.getElementById("payment-modal");
   const closePaymentModal = document.getElementById("close-payment-modal");
+  const paymentForm = document.getElementById("payment-form");
+
+  // Mostrar el botón del carrito
+  if (cartBtn) cartBtn.style.display = "block";
 
   // Mostrar/ocultar modal del carrito
-  cartBtn.addEventListener("click", (e) => {
-    e.stopPropagation();
-    actualizarCarritoUI();
-    cartModal.classList.toggle("hidden");
-  });
+  if (cartBtn) {
+    cartBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      actualizarCarritoUI();
+      cartModal.classList.toggle("hidden");
+    });
+  }
 
   // Cerrar modal con el botón X
-  closeCartModal.addEventListener("click", () => {
-    cartModal.classList.add("hidden");
-  });
+  if (closeCartModal) {
+    closeCartModal.addEventListener("click", () => {
+      cartModal.classList.add("hidden");
+    });
+  }
 
   // Cerrar modal al hacer clic fuera
   document.addEventListener("click", (e) => {
-    const isClickInsideModal = cartModal.contains(e.target);
+    const isClickInsideModal = cartModal?.contains(e.target);
     const isClickOnCartButton =
-      e.target === cartBtn || cartBtn.contains(e.target);
+      e.target === cartBtn || cartBtn?.contains(e.target);
 
     if (!isClickInsideModal && !isClickOnCartButton) {
-      cartModal.classList.add("hidden");
+      cartModal?.classList.add("hidden");
     }
   });
 
   // Prevenir cierre al hacer clic dentro del modal
-  cartModal.addEventListener("click", (e) => {
-    e.stopPropagation();
-  });
+  if (cartModal) {
+    cartModal.addEventListener("click", (e) => {
+      e.stopPropagation();
+    });
+  }
 
   // Mostrar modal de pago
-  checkoutBtn.addEventListener("click", () => {
-    if (carrito.length === 0) return;
-    cartModal.classList.add("hidden");
-    paymentModal.classList.remove("hidden");
-  });
+  if (checkoutBtn) {
+    checkoutBtn.addEventListener("click", () => {
+      if (carrito.length === 0) return;
+      cartModal.classList.add("hidden");
+      paymentModal.classList.remove("hidden");
+    });
+  }
 
   // Cerrar modal de pago
-  closePaymentModal.addEventListener("click", () => {
-    paymentModal.classList.add("hidden");
-  });
+  if (closePaymentModal) {
+    closePaymentModal.addEventListener("click", () => {
+      paymentModal.classList.add("hidden");
+    });
+  }
+
+  // Procesar pago
+  if (paymentForm) {
+    paymentForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      await procesarPago();
+    });
+  }
 
   // Inicializar carrito desde localStorage
   actualizarContadorCarrito();
 }
 
+function ocultarElementosCarrito() {
+  const cartBtn = document.getElementById("cart-btn");
+  if (cartBtn) cartBtn.style.display = "none";
+
+  // También puedes ocultar otros elementos relacionados al carrito si es necesario
+}
+
 export function agregarAlCarrito(producto) {
+  if (!estaAutenticado()) {
+    alert("Debes iniciar sesión para agregar productos al carrito");
+    return;
+  }
+
   const productoExistente = carrito.find(
     (item) => item.id_producto === producto.id_producto
   );
@@ -71,8 +118,6 @@ export function agregarAlCarrito(producto) {
 
   guardarCarrito();
   actualizarContadorCarrito();
-
-  // Mostrar feedback visual
   mostrarNotificacionAgregado(producto.nombre);
 }
 
@@ -105,8 +150,10 @@ export function actualizarContadorCarrito() {
   const cartCount = document.getElementById("cart-count");
   const totalItems = carrito.reduce((total, item) => total + item.cantidad, 0);
 
-  cartCount.textContent = totalItems;
-  cartCount.classList.toggle("hidden", totalItems === 0);
+  if (cartCount) {
+    cartCount.textContent = totalItems;
+    cartCount.classList.toggle("hidden", totalItems === 0);
+  }
 }
 
 export function actualizarCarritoUI() {
@@ -114,15 +161,17 @@ export function actualizarCarritoUI() {
   const cartTotal = document.getElementById("cart-total");
   const checkoutBtn = document.getElementById("checkout-btn");
 
+  if (!cartItems) return;
+
   if (carrito.length === 0) {
     cartItems.innerHTML =
       '<p class="py-4 text-center text-gray-500 dark:text-gray-400">Tu carrito está vacío</p>';
     cartTotal.textContent = formatearPrecio(0);
-    checkoutBtn.classList.add("hidden");
+    if (checkoutBtn) checkoutBtn.classList.add("hidden");
     return;
   }
 
-  checkoutBtn.classList.remove("hidden");
+  if (checkoutBtn) checkoutBtn.classList.remove("hidden");
 
   let total = 0;
   cartItems.innerHTML = "";
@@ -178,7 +227,7 @@ export function actualizarCarritoUI() {
   // Agregar eventos a los botones
   agregarEventosCarrito();
 
-  cartTotal.textContent = formatearPrecio(total);
+  if (cartTotal) cartTotal.textContent = formatearPrecio(total);
 }
 
 function agregarEventosCarrito() {
@@ -210,6 +259,62 @@ function agregarEventosCarrito() {
   });
 }
 
+async function procesarPago() {
+  const paymentModal = document.getElementById("payment-modal");
+  const paymentError = document.getElementById("payment-error");
+
+  try {
+    // Validar datos de pago (simplificado)
+    const cardName = document.getElementById("card-name").value.trim();
+    const cardNumber = document.getElementById("card-number").value.trim();
+
+    if (!cardName || !cardNumber) {
+      mostrarError(paymentError, "Por favor complete todos los campos");
+      return;
+    }
+
+    // Crear objeto de venta
+    const venta = {
+      detalles: carrito.map((item) => ({
+        id_producto: item.id_producto,
+        cantidad: item.cantidad,
+        precio_unitario: item.precio,
+      })),
+    };
+
+    // Enviar a la API
+    const response = await fetch(`${API_BASE_URL}/ventas/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${obtenerToken()}`,
+      },
+      body: JSON.stringify(venta),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || "Error al procesar el pago");
+    }
+
+    // Limpiar carrito después de éxito
+    carrito = [];
+    guardarCarrito();
+    actualizarContadorCarrito();
+    actualizarCarritoUI();
+
+    // Cerrar modales y mostrar mensaje
+    paymentModal.classList.add("hidden");
+    ocultarError(paymentError);
+
+    // Mostrar notificación de éxito
+    mostrarNotificacion("¡Compra realizada con éxito!", "success");
+  } catch (error) {
+    console.error("Error al procesar pago:", error);
+    mostrarError(paymentError, error.message || "Error al procesar el pago");
+  }
+}
+
 function mostrarNotificacionAgregado(nombreProducto) {
   const notification = document.createElement("div");
   notification.className =
@@ -228,4 +333,27 @@ function mostrarNotificacionAgregado(nombreProducto) {
       document.body.removeChild(notification);
     }, 300);
   }, 2000);
+}
+
+function mostrarNotificacion(mensaje, tipo = "success") {
+  const notification = document.createElement("div");
+  notification.className = `fixed bottom-4 right-4 ${
+    tipo === "success" ? "bg-green-500" : "bg-red-500"
+  } text-white px-4 py-2 rounded-md shadow-lg flex items-center animate-fade-in-up`;
+  notification.innerHTML = `
+        <i class="fas ${
+          tipo === "success" ? "fa-check-circle" : "fa-exclamation-circle"
+        } mr-2"></i>
+        <span>${mensaje}</span>
+    `;
+
+  document.body.appendChild(notification);
+
+  setTimeout(() => {
+    notification.classList.remove("animate-fade-in-up");
+    notification.classList.add("animate-fade-out");
+    setTimeout(() => {
+      document.body.removeChild(notification);
+    }, 300);
+  }, 3000);
 }
