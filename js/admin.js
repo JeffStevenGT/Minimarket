@@ -14,11 +14,11 @@ export async function cargarPanelAdmin() {
   console.log("Ejecutando cargarPanelAdmin...");
   console.log("Autenticado:", estaAutenticado(), "Rol:", obtenerRolUsuario());
 
-  // Verificar autenticación y rol
   if (!estaAutenticado() || obtenerRolUsuario() !== "administrador") {
     console.log("Acceso denegado, redirigiendo...");
     window.location.hash = "";
-    window.location.reload();
+    document.querySelector("main").classList.remove("hidden");
+    window.app.recargarProductos();
     return;
   }
 
@@ -299,13 +299,20 @@ export async function cargarPanelAdmin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${obtenerToken()}`,
         },
         body: JSON.stringify(datos),
       });
-      return response.ok;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al crear producto");
+      }
+
+      return true;
     } catch (error) {
       console.error("Error al crear producto:", error);
+      alert(error.message || "Error al crear producto");
       return false;
     }
   }
@@ -316,13 +323,21 @@ export async function cargarPanelAdmin() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${obtenerToken()}`, // Usar token dinámico
         },
         body: JSON.stringify(datos),
       });
-      return response.ok;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.log("Error en la respuesta de la API:", errorData);
+        throw new Error(errorData.detail || "Error al actualizar producto");
+      }
+
+      return true;
     } catch (error) {
       console.error("Error al actualizar producto:", error);
+      alert(error.message || "Error al actualizar producto");
       return false;
     }
   }
@@ -331,11 +346,18 @@ export async function cargarPanelAdmin() {
     try {
       const response = await fetch(`${API_BASE_URL}/productos/${id}`, {
         method: "DELETE",
-        headers: { Authorization: `Bearer ${API_TOKEN}` },
+        headers: { Authorization: `Bearer ${obtenerToken()}` },
       });
-      return response.ok;
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al eliminar producto");
+      }
+
+      return true;
     } catch (error) {
       console.error("Error al eliminar producto:", error);
+      alert(error.message || "Error al eliminar producto");
       return false;
     }
   }
@@ -372,23 +394,44 @@ export async function cargarPanelAdmin() {
     form.onsubmit = async (e) => {
       e.preventDefault();
       const datos = {
-        nombre: document.getElementById("producto-nombre").value,
-        descripcion: document.getElementById("producto-descripcion").value,
-        categoria: document.getElementById("producto-categoria").value,
-        precio: parseFloat(document.getElementById("producto-precio").value),
-        stock: parseInt(document.getElementById("producto-stock").value),
+        nombre_usuario: document.getElementById("usuario-nombre").value.trim(),
+        nombre_completo: document
+          .getElementById("usuario-completo")
+          .value.trim(),
+        correo: document.getElementById("usuario-email").value.trim(),
+        telefono: document.getElementById("usuario-telefono").value.trim(),
+        rol: document.getElementById("usuario-rol").value,
       };
 
-      const id = document.getElementById("producto-id").value;
+      const password = document.getElementById("usuario-password").value.trim();
+      if (!id) {
+        // Solo validar contraseña para nuevos usuarios
+        if (!password) {
+          alert("La contraseña es requerida para nuevos usuarios");
+          return;
+        }
+        datos.contraseña = password;
+      }
+
+      // Validar datos
+      if (
+        !datos.nombre_usuario ||
+        !datos.nombre_completo ||
+        !validarEmail(datos.correo) ||
+        !validarTelefono(datos.telefono)
+      ) {
+        alert("Por favor, completa todos los campos con valores válidos.");
+        return;
+      }
+
+      const id = document.getElementById("usuario-id").value;
       const success = id
-        ? await actualizarProducto(id, datos)
-        : await crearProducto(datos);
+        ? await actualizarUsuario(id, datos)
+        : await crearUsuario(datos);
 
       if (success) {
         modal.classList.add("hidden");
         await actualizarPanel();
-      } else {
-        alert("Error al guardar el producto");
       }
     };
 
@@ -401,9 +444,13 @@ export async function cargarPanelAdmin() {
       const response = await fetch(
         `${API_BASE_URL}/usuarios/?skip=0&limit=100`,
         {
-          headers: { Authorization: `Bearer ${API_TOKEN}` },
+          headers: { Authorization: `Bearer ${obtenerToken()}` },
         }
       );
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || "Error al cargar usuarios");
+      }
       const usuarios = await response.json();
 
       document.getElementById("total-usuarios").textContent = usuarios.length;
@@ -412,36 +459,36 @@ export async function cargarPanelAdmin() {
       tbody.innerHTML = usuarios
         .map(
           (usuario) => `
-            <tr>
-                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
-                  usuario.nombre_usuario
-                }</td>
-                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
-                  usuario.correo
-                }</td>
-                <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
-                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      usuario.rol === "administrador"
-                        ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
-                        : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
-                    }">
-                        ${usuario.rol}
-                    </span>
-                </td>
-                <td class="px-6 py-4">
-                    <button class="editar-usuario text-blue-600 hover:text-blue-800 mr-2" data-id="${
-                      usuario.id_usuario
-                    }">
-                        <i class="fas fa-edit"></i>
-                    </button>
-                    <button class="eliminar-usuario text-red-600 hover:text-red-800" data-id="${
-                      usuario.id_usuario
-                    }">
-                        <i class="fas fa-trash"></i>
-                    </button>
-                </td>
-            </tr>
-        `
+          <tr>
+              <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+                usuario.nombre_usuario
+              }</td>
+              <td class="px-6 py-4 text-gray-800 dark:text-gray-200">${
+                usuario.correo
+              }</td>
+              <td class="px-6 py-4 text-gray-800 dark:text-gray-200">
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                    usuario.rol === "administrador"
+                      ? "bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200"
+                      : "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+                  }">
+                      ${usuario.rol}
+                  </span>
+              </td>
+              <td class="px-6 py-4">
+                  <button class="editar-usuario text-blue-600 hover:text-blue-800 mr-2" data-id="${
+                    usuario.id_usuario
+                  }">
+                      <i class="fas fa-edit"></i>
+                  </button>
+                  <button class="eliminar-usuario text-red-600 hover:text-red-800" data-id="${
+                    usuario.id_usuario
+                  }">
+                      <i class="fas fa-trash"></i>
+                  </button>
+              </td>
+          </tr>
+      `
         )
         .join("");
 
@@ -462,7 +509,7 @@ export async function cargarPanelAdmin() {
       });
     } catch (error) {
       console.error("Error al cargar usuarios:", error);
-      alert("Error al cargar usuarios");
+      alert(error.message || "Error al cargar usuarios");
     }
   }
 
@@ -478,14 +525,15 @@ export async function cargarPanelAdmin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${API_TOKEN}`,
+          Authorization: `Bearer ${obtenerToken()}`,
         },
         body: JSON.stringify(datos),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Error al crear usuario");
+        console.log("Error en la respuesta de la API:", errorData);
+        throw new Error(errorData.detail || "Error al actualizar producto");
       }
 
       return true;
@@ -514,7 +562,8 @@ export async function cargarPanelAdmin() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Error al actualizar usuario");
+        console.log("Error en la respuesta de la API:", errorData);
+        throw new Error(errorData.detail || "Error al actualizar producto");
       }
 
       return true;
@@ -534,7 +583,8 @@ export async function cargarPanelAdmin() {
 
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.detail || "Error al eliminar usuario");
+        console.log("Error en la respuesta de la API:", errorData);
+        throw new Error(errorData.detail || "Error al actualizar producto");
       }
 
       return true;
@@ -613,7 +663,17 @@ export async function cargarPanelAdmin() {
 
   // Función para actualizar todo el panel
   async function actualizarPanel() {
-    await Promise.all([cargarProductos(), cargarUsuarios()]);
-    // Aquí también podrías cargar estadísticas de ventas si es necesario
+    try {
+      await cargarProductos();
+    } catch (error) {
+      console.error("Error al actualizar productos:", error);
+      alert("Error al actualizar productos");
+    }
+    try {
+      await cargarUsuarios();
+    } catch (error) {
+      console.error("Error al actualizar usuarios:", error);
+      alert("Error al actualizar usuarios");
+    }
   }
 }

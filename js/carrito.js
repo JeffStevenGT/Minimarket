@@ -63,28 +63,22 @@ export function inicializarCarrito() {
   }
 
   // Mostrar modal de pago
-  if (checkoutBtn) {
-    checkoutBtn.addEventListener("click", () => {
-      if (carrito.length === 0) return;
-      cartModal.classList.add("hidden");
-      paymentModal.classList.remove("hidden");
-    });
-  }
+  checkoutBtn.addEventListener("click", () => {
+    if (carrito.length === 0) return;
+    cartModal.classList.add("hidden");
+    paymentModal.classList.remove("hidden");
+  });
 
   // Cerrar modal de pago
-  if (closePaymentModal) {
-    closePaymentModal.addEventListener("click", () => {
-      paymentModal.classList.add("hidden");
-    });
-  }
+  closePaymentModal.addEventListener("click", () => {
+    paymentModal.classList.add("hidden");
+  });
 
   // Procesar pago
-  if (paymentForm) {
-    paymentForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      await procesarPago();
-    });
-  }
+  paymentForm.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    await procesarPago();
+  });
 
   // Inicializar carrito desde localStorage
   actualizarContadorCarrito();
