@@ -63,7 +63,7 @@ export async function cargarPanelAdmin() {
     </div>
     
     <!-- Sección de Productos -->
-    <div class="mb-8">
+    <div class="mb-8 max-h-[500px] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Productos</h2>
         <button id="nuevo-producto-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition duration-300">
@@ -88,7 +88,7 @@ export async function cargarPanelAdmin() {
     </div>
     
     <!-- Sección de Usuarios -->
-    <div class="mb-8">
+    <div class="mb-8 max-h-[500px] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-bold text-gray-800 dark:text-white">Usuarios</h2>
         <button id="nuevo-usuario-btn" class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-md transition duration-300">
@@ -677,3 +677,4 @@ export async function cargarPanelAdmin() {
     }
   }
 }
+
